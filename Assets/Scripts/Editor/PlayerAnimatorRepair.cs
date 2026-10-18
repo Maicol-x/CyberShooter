@@ -7,14 +7,24 @@ using UnityEngine;
 namespace CyberShooter.EditorTools
 {
     /// <summary>
-    /// Reconstruye el AnimatorController "Playeranimator" con los 5 estados
-    /// (Idle, Running, Shoot, Jump, Dash), sus clips y todas las transiciones.
+    /// Reconstruye el AnimatorController "Playeranimator".
+    ///
+    /// Diseño v2 (Fase B):
+    ///   Estados: Idle, walking, Running, Shoot, Jump, Barrida
+    ///     - Idle/walking/Running se eligen con Speed + IsSprinting.
+    ///     - Shoot se mantiene con el Bool IsShooting (loop mientras disparas).
+    ///     - Jump y Barrida son triggers de un solo disparo.
     ///
     /// - Se auto-repara una sola vez al cargar el editor SI el controlador
-    ///   está vacío o incompleto (asi arreglamos el lienzo en blanco).
-    /// - Tambien se puede lanzar a mano en cualquier momento desde el menu:
+    ///   está vacío o incompleto (asi no pisamos cambios hechos a mano).
+    /// - Tambien se puede lanzar a mano desde el menu:
     ///       Tools > CyberShooter > Reconstruir Player Animator
+    ///       Tools > CyberShooter > Reconstruir Player Animator (limpio)
     ///       Tools > CyberShooter > Diagnostico Player Animator
+    ///
+    /// "Limpio" borra el asset y lo crea de nuevo: es la unica forma fiable de
+    /// deshacerse de sub-objetos huerfanos (transiciones que apuntan a estados
+    /// inexistentes: el famoso "Broken text PPtr").
     ///
     /// No se ejecuta nunca en Play Mode.
     /// </summary>
@@ -23,17 +33,26 @@ namespace CyberShooter.EditorTools
     {
         private const string ControllerPath = "Assets/Models/Playeranimator.controller";
 
-        // One FBX per state, in the same order as StateNames.
+        // Un FBX por estado, en el mismo orden que StateNames.
         private static readonly string[] ClipFbxPaths =
         {
             "Assets/Models/Ch44_nonPBR@Breathing Idle.fbx", // Idle
-            "Assets/Models/Ch44_nonPBR@Running.fbx",        // Running
+            "Assets/Models/Walking.fbx",                    // walking
+            "Assets/Models/Running.fbx",                    // Running
             "Assets/Models/Gunplay.fbx",                    // Shoot
             "Assets/Models/Jump.fbx",                       // Jump
-            "Assets/Models/dash.fbx",                       // Dash
+            "Assets/Models/Barrida.fbx",                    // Barrida (slide)
         };
 
-        private static readonly string[] StateNames = { "Idle", "Running", "Shoot", "Jump", "Dash" };
+        private static readonly string[] StateNames = { "Idle", "walking", "Running", "Shoot", "Jump", "Barrida" };
+
+        // Indices para que el codigo de las transiciones se lea solo.
+        private const int IDLE = 0;
+        private const int WALK = 1;
+        private const int RUN = 2;
+        private const int SHOOT = 3;
+        private const int JUMP = 4;
+        private const int BARRIDA = 5;
 
         static PlayerAnimatorRepair()
         {
@@ -46,7 +65,7 @@ namespace CyberShooter.EditorTools
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
             if (!NeedsRepair()) return;
-            Rebuild(true);
+            Rebuild(true, false);
         }
 
         [MenuItem("Tools/CyberShooter/Reconstruir Player Animator")]
@@ -57,7 +76,20 @@ namespace CyberShooter.EditorTools
                 Debug.LogWarning("[AnimRepair] No se toca el Animator en Play Mode. Para el juego primero.");
                 return;
             }
-            Rebuild(false);
+            Rebuild(false, false);
+        }
+
+        // Borra el asset y lo crea de nuevo. Es la unica forma fiable de quitar
+        // sub-objetos huerfanos (p.ej. la transicion del "Broken text PPtr").
+        [MenuItem("Tools/CyberShooter/Reconstruir Player Animator (limpio)")]
+        private static void RebuildCleanFromMenu()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                Debug.LogWarning("[AnimRepair] No se toca el Animator en Play Mode. Para el juego primero.");
+                return;
+            }
+            Rebuild(false, true);
         }
 
         [MenuItem("Tools/CyberShooter/Diagnostico Player Animator")]
@@ -113,33 +145,44 @@ namespace CyberShooter.EditorTools
             return false;
         }
 
-        private static void Rebuild(bool automatic)
+        private static void Rebuild(bool automatic, bool forceClean)
         {
-            var controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(ControllerPath);
-            if (controller == null)
-            {
-                Debug.LogError("[AnimRepair] No encontré " + ControllerPath);
-                return;
-            }
+            var old = AssetDatabase.LoadAssetAtPath<AnimatorController>(ControllerPath);
 
             // Quién usa este controlador ahora mismo (para reasignar si hay que recrear el asset).
             var users = new List<Animator>();
             var allAnimators = Object.FindObjectsByType<Animator>(FindObjectsSortMode.None);
             for (int i = 0; i < allAnimators.Length; i++)
             {
-                if (allAnimators[i].runtimeAnimatorController == controller) users.Add(allAnimators[i]);
+                if (old != null && allAnimators[i].runtimeAnimatorController == old) users.Add(allAnimators[i]);
             }
 
             // Localizamos el clip de cada FBX.
             var clips = new AnimationClip[ClipFbxPaths.Length];
             for (int i = 0; i < ClipFbxPaths.Length; i++) clips[i] = FindClip(ClipFbxPaths[i]);
 
-            // Si el state machine no es válido, recreamos el asset (mismo path => mismo GUID/meta).
+            AnimatorController controller = old;
             bool recreated = false;
-            if (controller.layers == null || controller.layers.Length == 0 || controller.layers[0].stateMachine == null)
+
+            if (forceClean && old != null)
             {
+                // BORRAR + CREAR: los sub-objetos huerfanos se van con el asset viejo.
+                AssetDatabase.DeleteAsset(ControllerPath);
                 controller = AnimatorController.CreateAnimatorControllerAtPath(ControllerPath);
                 recreated = true;
+            }
+            else if (old == null || old.layers == null || old.layers.Length == 0 || old.layers[0].stateMachine == null)
+            {
+                // State machine invalido (lienzo en blanco): recreamos el asset.
+                if (old != null) AssetDatabase.DeleteAsset(ControllerPath);
+                controller = AnimatorController.CreateAnimatorControllerAtPath(ControllerPath);
+                recreated = true;
+            }
+
+            if (controller == null)
+            {
+                Debug.LogError("[AnimRepair] No pude crear/abrir " + ControllerPath);
+                return;
             }
 
             var sm = controller.layers[0].stateMachine;
@@ -155,8 +198,12 @@ namespace CyberShooter.EditorTools
             EnsureParameter(controller, "Speed", AnimatorControllerParameterType.Float);
             EnsureParameter(controller, "IsGrounded", AnimatorControllerParameterType.Bool);
             EnsureParameter(controller, "IsSprinting", AnimatorControllerParameterType.Bool);
-            EnsureParameter(controller, "Shoot", AnimatorControllerParameterType.Trigger);
+            EnsureParameter(controller, "IsShooting", AnimatorControllerParameterType.Bool);
             EnsureParameter(controller, "Jump", AnimatorControllerParameterType.Trigger);
+            EnsureParameter(controller, "Barrida", AnimatorControllerParameterType.Trigger);
+            // Se mantienen por compatibilidad: el codigo todavia los envia aunque ya
+            // no tengan estado destino. Si existieran como parametro, Unity no avisa.
+            EnsureParameter(controller, "Shoot", AnimatorControllerParameterType.Trigger);
             EnsureParameter(controller, "Dash", AnimatorControllerParameterType.Trigger);
 
             // ---- 3) Estados ----
@@ -168,34 +215,74 @@ namespace CyberShooter.EditorTools
                 st[i].speed = 1f;
                 st[i].writeDefaultValues = true;
             }
-            sm.defaultState = st[0]; // Idle por defecto
+            sm.defaultState = st[IDLE]; // Idle por defecto
 
             // ---- 4) Transiciones ----
-            // Idle -> Running   (Speed > 0.1)
-            var t = st[0].AddTransition(st[1]);
-            t.hasExitTime = false;
-            t.hasFixedDuration = true;
-            t.duration = 0.15f;
-            t.canTransitionToSelf = false;
-            t.AddCondition(AnimatorConditionMode.Greater, 0.1f, "Speed");
+            // OJO con el orden: Unity evalua las transiciones EN ORDEN y usa la
+            // primera cuyas condiciones se cumplan. Por eso los auto-bucles de
+            // "exit time" se anaden AL FINAL.
 
-            // Running -> Idle   (Speed < 0.1)
-            t = st[1].AddTransition(st[0]);
-            t.hasExitTime = false;
-            t.hasFixedDuration = true;
-            t.duration = 0.15f;
-            t.canTransitionToSelf = false;
+            // --- Locomocion: Idle / walking / Running ---
+            // Idle -> walking   (me muevo, sin sprint)
+            var t = AddTransition(st[IDLE], st[WALK], 0.15f);
+            t.AddCondition(AnimatorConditionMode.Greater, 0.1f, "Speed");
+            t.AddCondition(AnimatorConditionMode.IfNot, 0f, "IsSprinting");
+
+            // Idle -> Running   (me muevo en sprint)
+            t = AddTransition(st[IDLE], st[RUN], 0.15f);
+            t.AddCondition(AnimatorConditionMode.Greater, 0.1f, "Speed");
+            t.AddCondition(AnimatorConditionMode.If, 0f, "IsSprinting");
+
+            // walking -> Idle   (paro)
+            t = AddTransition(st[WALK], st[IDLE], 0.15f);
             t.AddCondition(AnimatorConditionMode.Less, 0.1f, "Speed");
 
-            // AnyState -> Shoot / Jump / Dash  (triggers)
-            AddAnyState(sm, st[2], "Shoot");
-            AddAnyState(sm, st[3], "Jump");
-            AddAnyState(sm, st[4], "Dash");
+            // walking -> Running   (empiezo a correr)
+            t = AddTransition(st[WALK], st[RUN], 0.15f);
+            t.AddCondition(AnimatorConditionMode.If, 0f, "IsSprinting");
 
-            // Shoot / Jump / Dash -> Idle  (con Has Exit Time)
-            AddExitToIdle(st[2], st[0]);
-            AddExitToIdle(st[3], st[0]);
-            AddExitToIdle(st[4], st[0]);
+            // Running -> Idle   (paro)
+            t = AddTransition(st[RUN], st[IDLE], 0.15f);
+            t.AddCondition(AnimatorConditionMode.Less, 0.1f, "Speed");
+
+            // Running -> walking   (suelto sprint pero sigo moviendome)
+            t = AddTransition(st[RUN], st[WALK], 0.15f);
+            t.AddCondition(AnimatorConditionMode.IfNot, 0f, "IsSprinting");
+
+            // --- Disparo: IsShooting (bool => la animacion se queda en loop) ---
+            AddShootEntry(st[IDLE], st[SHOOT]);
+            AddShootEntry(st[WALK], st[SHOOT]);
+            AddShootEntry(st[RUN], st[SHOOT]);
+
+            // Shoot -> locomocion al soltar el clic
+            var tShoot = AddTransition(st[SHOOT], st[IDLE], 0.1f);
+            tShoot.AddCondition(AnimatorConditionMode.IfNot, 0f, "IsShooting");
+            tShoot.AddCondition(AnimatorConditionMode.Less, 0.1f, "Speed");
+
+            tShoot = AddTransition(st[SHOOT], st[RUN], 0.1f);
+            tShoot.AddCondition(AnimatorConditionMode.IfNot, 0f, "IsShooting");
+            tShoot.AddCondition(AnimatorConditionMode.Greater, 0.1f, "Speed");
+            tShoot.AddCondition(AnimatorConditionMode.If, 0f, "IsSprinting");
+
+            tShoot = AddTransition(st[SHOOT], st[WALK], 0.1f);
+            tShoot.AddCondition(AnimatorConditionMode.IfNot, 0f, "IsShooting");
+            tShoot.AddCondition(AnimatorConditionMode.Greater, 0.1f, "Speed");
+
+            // --- One-shots (triggers) ---
+            AddAnyState(sm, st[JUMP], "Jump");
+            AddExitToIdle(st[JUMP], st[IDLE], 0.9f, 0.2f);
+
+            AddAnyState(sm, st[BARRIDA], "Barrida");
+            // El clip de Barrida dura 1.53s y la barrida 0.5s: salimos al 33% (~0.5s).
+            AddExitToIdle(st[BARRIDA], st[IDLE], 0.33f, 0.15f);
+
+            // --- Auto-bucles (AL FINAL: solo actuan si no ha ganado otra transicion) ---
+            // Los clips de ciclo NO tienen "Loop Time" en su FBX, asi que sin esto se
+            // quedarian congelados en el ultimo frame.
+            AddSelfLoop(st[IDLE]);
+            AddSelfLoop(st[WALK]);
+            AddSelfLoop(st[RUN]);
+            AddSelfLoop(st[SHOOT]);
 
             // ---- 5) La capa Base debe pesar 1 (si no, no se ve ninguna animación) ----
             var layers = controller.layers;
@@ -233,6 +320,35 @@ namespace CyberShooter.EditorTools
 
         // ---------- Helpers ----------
 
+        private static AnimatorStateTransition AddTransition(AnimatorState from, AnimatorState to, float duration)
+        {
+            var t = from.AddTransition(to);
+            t.hasExitTime = false;
+            t.hasFixedDuration = true;
+            t.duration = duration;
+            t.canTransitionToSelf = false;
+            return t;
+        }
+
+        // Entrada al estado de disparo: se queda ahi mientras IsShooting sea true.
+        private static void AddShootEntry(AnimatorState from, AnimatorState shoot)
+        {
+            var t = AddTransition(from, shoot, 0.1f);
+            t.AddCondition(AnimatorConditionMode.If, 0f, "IsShooting");
+        }
+
+        // Auto-transicion para que un estado de ciclo se repita (los clips de ciclo
+        // del proyecto no tienen "Loop Time" activado en el FBX).
+        private static void AddSelfLoop(AnimatorState state)
+        {
+            var t = state.AddTransition(state);
+            t.hasExitTime = true;
+            t.exitTime = 1f;
+            t.hasFixedDuration = true;
+            t.duration = 0f;
+            t.canTransitionToSelf = true;
+        }
+
         private static void AddAnyState(AnimatorStateMachine sm, AnimatorState destination, string trigger)
         {
             var t = sm.AddAnyStateTransition(destination);
@@ -243,13 +359,13 @@ namespace CyberShooter.EditorTools
             t.AddCondition(AnimatorConditionMode.If, 0f, trigger);
         }
 
-        private static void AddExitToIdle(AnimatorState from, AnimatorState idle)
+        private static void AddExitToIdle(AnimatorState from, AnimatorState idle, float exitTime, float duration)
         {
             var t = from.AddTransition(idle);
             t.hasExitTime = true;
-            t.exitTime = 0.9f;
+            t.exitTime = exitTime;
             t.hasFixedDuration = true;
-            t.duration = 0.2f;
+            t.duration = duration;
         }
 
         private static void EnsureParameter(AnimatorController c, string name, AnimatorControllerParameterType type)

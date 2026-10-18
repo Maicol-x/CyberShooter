@@ -13,6 +13,8 @@ public class PlayerAnimationController : MonoBehaviour
     [SerializeField] private string isGroundedParam = "IsGrounded";
     [SerializeField] private string isSprintingParam = "IsSprinting";
     [SerializeField] private string jumpTrigger = "Jump";
+    [SerializeField] private string slideTrigger = "Barrida";
+    [SerializeField] private string isShootingParam = "IsShooting";
     [SerializeField] private string landTrigger = "Land";
     [SerializeField] private string shootTrigger = "Shoot";
     [SerializeField] private string dashTrigger = "Dash";
@@ -60,6 +62,45 @@ public class PlayerAnimationController : MonoBehaviour
         return firstWithoutController;
     }
 
+    private void OnEnable()
+    {
+        if (_motor != null)
+        {
+            _motor.OnJump += HandleJumpEvent;
+            _motor.OnSlide += HandleSlideEvent;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (_motor != null)
+        {
+            _motor.OnJump -= HandleJumpEvent;
+            _motor.OnSlide -= HandleSlideEvent;
+        }
+    }
+
+    // El salto se recibe por EVENTO. Antes se sondeaba _motor.JumpRequested, pero
+    // ese flag se pone a true y se consume a false dentro del mismo Update del
+    // motor, asi que este script nunca llegaba a verlo: la animacion de salto
+    // NUNCA se disparaba.
+    private void HandleJumpEvent()
+    {
+        if (_animator != null)
+        {
+            _animator.SetTrigger(jumpTrigger);
+        }
+    }
+
+    // Barrida (tecla C): PlayerMotor avisa cuando arranca el deslizamiento.
+    private void HandleSlideEvent()
+    {
+        if (_animator != null && !string.IsNullOrEmpty(slideTrigger))
+        {
+            _animator.SetTrigger(slideTrigger);
+        }
+    }
+
     private void Update()
     {
         if (_animator == null || _motor == null) return;
@@ -81,11 +122,11 @@ public class PlayerAnimationController : MonoBehaviour
         // Sprint state
         _animator.SetBool(isSprintingParam, _motor.IsSprinting && _motor.HasMovementInput);
 
-        // Jump trigger
-        if (_motor.JumpRequested)
-        {
-            _animator.SetTrigger(jumpTrigger);
-        }
+        // Disparo: bool en LOOP mientras se mantiene el clic (lo levanta PlayerShooting).
+        _animator.SetBool(isShootingParam, _motor.IsShooting);
+
+        // NOTA: el trigger de salto ya no se sondea aqui, llega por el evento
+        // OnJump (ver HandleJumpEvent / OnEnable).
 
         // Shoot trigger: se CONSUME el flag (se pone a false) para que NO se dispare
         // en cada frame. Solo se anima cuando PlayerShooting lo levanta (1 vez por clic).

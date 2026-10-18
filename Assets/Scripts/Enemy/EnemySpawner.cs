@@ -16,6 +16,7 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private Transform playerTransform;
 
     private float _nextSpawnTime = 0f;
+    private int _spawnCounter = 0;
 
     private void Awake()
     {
@@ -54,18 +55,29 @@ public class EnemySpawner : MonoBehaviour
 
         Vector3 spawnPos = GetRandomSpawnPosition();
 
-        GameObject enemy = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        enemy.name = $"Enemy_{Time.time:F0}";
-        enemy.transform.position = spawnPos;
-        enemy.transform.localScale = new Vector3(1f, 2f, 1f);
+        // --- FIX HITBOX ---
+        // La raiz se queda con escala uniforme, asi el CharacterController NO se
+        // deforma (antes se escalaba la raiz (1,2,1) y Unity escalaba tambien el
+        // collider: acababa 1 m por encima del cubo visible).
+        // La malla visible es un hijo "Body" de 1x2x1 m, de Y=0 a Y=2.
+        GameObject enemy = new GameObject("Enemy");
+        _spawnCounter++;
+        enemy.name = "Enemy_" + _spawnCounter;
+        enemy.transform.position = spawnPos;   // los pies tocan el suelo
         enemy.tag = "Enemy";
 
-        // EL FIX: Destruimos el BoxCollider por defecto para que no choque con el CharacterController
-        BoxCollider defaultCol = enemy.GetComponent<BoxCollider>();
-        if (defaultCol != null) Destroy(defaultCol);
+        GameObject body = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        body.name = "Body";
+        body.transform.SetParent(enemy.transform, false);
+        body.transform.localPosition = new Vector3(0f, 1f, 0f);   // centro del cubo a 1 m
+        body.transform.localScale = new Vector3(1f, 2f, 1f);      // 1 x 2 x 1 m
+
+        // El cubo es solo decorativo: el collider real es el CharacterController.
+        Collider bodyCollider = body.GetComponent<Collider>();
+        if (bodyCollider != null) Destroy(bodyCollider);
 
         // Material rojo seguro
-        var renderer = enemy.GetComponent<Renderer>();
+        var renderer = body.GetComponent<Renderer>();
         if (renderer != null)
         {
             renderer.material.color = Color.red; 
@@ -92,31 +104,17 @@ public class EnemySpawner : MonoBehaviour
             return;
         }
 
-        // Configurar EnemyHealth
-        if (health != null) health.maxHealth = enemyMaxHealth;
+        // Configurar EnemyHealth (SetMaxHealth tambien reinicia la vida actual:
+        // Awake ya se ejecuto al hacer AddComponent, asi que hay que resetearla).
+        if (health != null) health.SetMaxHealth(enemyMaxHealth);
 
-        // Configurar EnemyAI
+        // Configurar EnemyAI (moveSpeed lo fija el spawner; el resto de valores son
+        // los del Inspector de EnemyAI, asi no se pisan al spawnear).
         if (ai != null)
         {
             ai.moveSpeed = enemyMoveSpeed;
-            ai.rotationSpeed = 10f;
-            ai.stopDistance = 2f;
-            ai.detectionRange = 30f;
-            ai.attackRange = 25f;
-            ai.fireRate = 1f;
-            ai.damagePerShot = 10;
-            ai.tracerDuration = 0.06f;
-            ai.tracerWidth = 0.08f;
-            ai.tracerColor = Color.yellow;
+            ai.ApplyHitbox();   // collider = malla visible (center y=1, altura 2)
         }
-
-        // Configurar Controller
-        controller.radius = 0.5f;
-        controller.height = 2f;
-        controller.center = new Vector3(0, 1f, 0);
-        controller.slopeLimit = 45f;
-        controller.stepOffset = 0.3f;
-        controller.skinWidth = 0.08f;
     }
 
     private Vector3 GetRandomSpawnPosition()
@@ -133,7 +131,7 @@ public class EnemySpawner : MonoBehaviour
         );
 
         Vector3 spawnPos = playerTransform.position + offset;
-        spawnPos.y = 1f;
+        spawnPos.y = 0f;   // los pies del enemigo apoyan en el suelo (el cubo va de 0 a 2)
 
         return spawnPos;
     }

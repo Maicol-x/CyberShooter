@@ -16,6 +16,7 @@ public class PlayerMotor : MonoBehaviour
     [SerializeField] private string jumpActionName = "Jump";
     [SerializeField] private string sprintActionName = "Sprint";
     [SerializeField] private string dashActionName = "Dash";
+    [SerializeField] private string slideActionName = "Slide";
 
     [Header("Movement Settings")]
     [SerializeField, Min(0f)] private float walkSpeed = 5f;
@@ -24,7 +25,7 @@ public class PlayerMotor : MonoBehaviour
     // Public properties for other scripts to read
     public float WalkSpeed => walkSpeed;
     public float SprintSpeed => sprintSpeed;
-    public bool HasMovementInput => _moveAction != null && _moveAction.ReadValue<Vector2>().sqrMagnitude > 0.01f;
+    public bool HasMovementInput => ReadMoveInput().sqrMagnitude > 0.01f;
     [SerializeField, Min(0f)] private float rotationSpeed = 12f;
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private float jumpHeight = 1.5f;
@@ -37,6 +38,12 @@ public class PlayerMotor : MonoBehaviour
     [SerializeField, Min(0f)] private float dashDuration = 0.2f;
     [SerializeField, Min(0f)] private float dashCooldown = 1f;
 
+    [Header("Slide / Barrida Settings (tecla C)")]
+    [SerializeField, Min(0f)] private float slideSpeed = 14f;
+    [SerializeField, Min(0f)] private float slideDuration = 0.5f;
+    [SerializeField, Min(0f)] private float slideCooldown = 0.6f;
+    [SerializeField, Min(0.5f)] private float slideHeight = 1f;
+
     [Header("Ground Check")]
     [SerializeField] private LayerMask groundLayer = -1;
     [SerializeField] private float groundCheckDistance = 0.1f;
@@ -45,7 +52,9 @@ public class PlayerMotor : MonoBehaviour
     private InputAction _jumpAction;
     private InputAction _sprintAction;
     private InputAction _dashAction;
+    private InputAction _slideAction;
     private bool _ownsActions = false;
+    private bool _moveActionWarned = false;
 
     private Vector3 _velocity;
     private float _verticalVelocity;
@@ -59,6 +68,15 @@ public class PlayerMotor : MonoBehaviour
     private bool _isDashing = false;
     private Vector3 _dashDirection;
 
+    // --- Slide / Barrida ---
+    private bool _isSliding = false;
+    private float _slideTimer = 0f;
+    private float _slideCooldownTimer = 0f;
+    private Vector3 _slideDirection;
+    private float _standingHeight = 1.8f;
+    private Vector3 _standingCenter = new Vector3(0f, 0.9f, 0f);
+    private bool _crouchBlocked = false;
+
     private void Awake()
     {
         if (characterController == null)
@@ -66,6 +84,14 @@ public class PlayerMotor : MonoBehaviour
 
         if (cameraTransform == null)
             cameraTransform = Camera.main?.transform;
+
+        // Guardamos la altura/centro ORIGINALES: la barrida los modifica y hay que
+        // poder restaurarlos exactamente (no asumimos 1.8 / 0.9).
+        if (characterController != null)
+        {
+            _standingHeight = characterController.height;
+            _standingCenter = characterController.center;
+        }
 
         ResolveActions();
     }
@@ -85,6 +111,9 @@ public class PlayerMotor : MonoBehaviour
 
             _dashAction = inputActions.FindAction(dashActionName, false)
                            ?? inputActions.FindAction($"Player/{dashActionName}", false);
+
+            _slideAction = inputActions.FindAction(slideActionName, false)
+                            ?? inputActions.FindAction($"Player/{slideActionName}", false);
         }
 
         if (_moveAction == null)
@@ -115,6 +144,52 @@ public class PlayerMotor : MonoBehaviour
             _dashAction = new InputAction("Dash", InputActionType.Button, "<Keyboard>/leftCtrl");
             _ownsActions = true;
         }
+
+        if (_slideAction == null)
+        {
+            _slideAction = new InputAction("Slide", InputActionType.Button, "<Keyboard>/c");
+            _ownsActions = true;
+        }
+    }
+
+    // ---------- Lectura de input a prueba de balas ----------
+    // En este proyecto las acciones creadas por codigo no siempre entregan input
+    // (por eso el salto ya llevaba un fallback a Keyboard.current.spaceKey y la
+    // camara lee Mouse.current.delta directamente). El movimiento usa el MISMO
+    // criterio: primero el InputAction y, si no entrega nada, el teclado directo.
+    private Vector2 ReadMoveInput()
+    {
+        Vector2 input = _moveAction != null ? _moveAction.ReadValue<Vector2>() : Vector2.zero;
+
+        if (input.sqrMagnitude < 0.0001f && Keyboard.current != null)
+        {
+            Keyboard k = Keyboard.current;
+            float x = 0f;
+            float y = 0f;
+
+            if (k.wKey.isPressed || k.upArrowKey.isPressed) y += 1f;
+            if (k.sKey.isPressed || k.downArrowKey.isPressed) y -= 1f;
+            if (k.dKey.isPressed || k.rightArrowKey.isPressed) x += 1f;
+            if (k.aKey.isPressed || k.leftArrowKey.isPressed) x -= 1f;
+
+            input = new Vector2(x, y);
+            if (input.sqrMagnitude > 1f) input.Normalize();
+
+            if (input.sqrMagnitude > 0.0001f && !_moveActionWarned)
+            {
+                _moveActionWarned = true;
+                Debug.LogWarning("[PlayerMotor] La accion 'Move' no entrega input; usando lectura directa de teclado (WASD/flechas).");
+            }
+        }
+
+        return input;
+    }
+
+    // Sprint: la accion o, si no responde, el Shift izquierdo directo.
+    private bool IsSprintHeld()
+    {
+        if (_sprintAction != null && _sprintAction.IsPressed()) return true;
+        return Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed;
     }
 
     private void OnEnable()
@@ -123,12 +198,16 @@ public class PlayerMotor : MonoBehaviour
         _jumpAction?.Enable();
         _sprintAction?.Enable();
         _dashAction?.Enable();
+        _slideAction?.Enable();
 
         if (_jumpAction != null)
             _jumpAction.performed += OnJumpPerformed;
 
         if (_dashAction != null)
             _dashAction.performed += OnDashPerformed;
+
+        if (_slideAction != null)
+            _slideAction.performed += OnSlidePerformed;
     }
 
     private void OnDisable()
@@ -137,12 +216,16 @@ public class PlayerMotor : MonoBehaviour
         _jumpAction?.Disable();
         _sprintAction?.Disable();
         _dashAction?.Disable();
+        _slideAction?.Disable();
 
         if (_jumpAction != null)
             _jumpAction.performed -= OnJumpPerformed;
 
         if (_dashAction != null)
             _dashAction.performed -= OnDashPerformed;
+
+        if (_slideAction != null)
+            _slideAction.performed -= OnSlidePerformed;
     }
 
     private void OnDestroy()
@@ -153,20 +236,28 @@ public class PlayerMotor : MonoBehaviour
             _jumpAction?.Dispose();
             _sprintAction?.Dispose();
             _dashAction?.Dispose();
+            _slideAction?.Dispose();
         }
     }
 
     private void OnJumpPerformed(InputAction.CallbackContext ctx)
     {
+        // Solo rellenamos el buffer. El evento OnJump se dispara UNA sola vez,
+        // en HandleGravity, justo cuando el salto se aplica de verdad.
+        // (Antes se disparaba aqui tambien -> doble evento por pulsacion).
         _jumpBufferTimer = jumpBufferTime;
-        OnJump?.Invoke();
     }
 
     private void OnDashPerformed(InputAction.CallbackContext ctx)
     {
+        TryStartDash();
+    }
+
+    private void TryStartDash()
+    {
         if (_dashCooldownTimer <= 0f && !_isDashing)
         {
-            Vector2 input = _moveAction != null ? _moveAction.ReadValue<Vector2>() : Vector2.zero;
+            Vector2 input = ReadMoveInput();
             if (input.sqrMagnitude > 0.01f)
             {
                 _isDashing = true;
@@ -197,6 +288,46 @@ public class PlayerMotor : MonoBehaviour
         }
     }
 
+    private void OnSlidePerformed(InputAction.CallbackContext ctx)
+    {
+        TryStartSlide();
+    }
+
+    private void TryStartSlide()
+    {
+        if (_isSliding || _slideCooldownTimer > 0f) return;
+        if (!_isGrounded && _verticalVelocity > 0f) return;   // no se hace barrida subiendo
+
+        _isSliding = true;
+        _slideTimer = Mathf.Max(0.05f, slideDuration);
+        _slideCooldownTimer = Mathf.Max(0f, slideCooldown);
+
+        // Direccion: la del input relativo a la camara; si no hay input, hacia delante.
+        Vector2 input = ReadMoveInput();
+
+        Vector3 forward = transform.forward;
+        Vector3 right = transform.right;
+        if (cameraTransform != null)
+        {
+            forward = cameraTransform.forward;
+            right = cameraTransform.right;
+        }
+        forward.y = 0f;
+        right.y = 0f;
+        forward.Normalize();
+        right.Normalize();
+
+        Vector3 dir = input.sqrMagnitude > 0.01f ? (forward * input.y + right * input.x) : forward;
+        if (dir.sqrMagnitude > 0.001f) _slideDirection = dir.normalized;
+        else _slideDirection = transform.forward;
+
+        // Agacharse: bajamos el CharacterController y RECOLOCAMOS el center para que
+        // los pies se queden en el mismo sitio (center.y = altura / 2).
+        ApplyCrouch(slideHeight);
+
+        OnSlide?.Invoke();
+    }
+
     private void Update()
     {
         // Red de seguridad: si por lo que sea falta el CharacterController, no reventamos.
@@ -212,8 +343,24 @@ public class PlayerMotor : MonoBehaviour
         HandleJumpBuffer();
         HandleGravity();     // Calculamos la velocidad vertical (incluye el salto) ANTES de movernos
         HandleMovement();    // ...y nos movemos ya con la velocidad vertical de este mismo frame
+        HandleSlide();       // La barrida manda sobre el movimiento normal (ver HandleMovement)
         HandleRotation();
         HandleDash();
+        HandleDirectKeys();  // Dash/Barrida por teclado directo (red de seguridad, ver ReadMoveInput)
+    }
+
+    // Dash (Ctrl izq.) y Barrida (C) leidos DIRECTAMENTE del teclado, por el mismo
+    // motivo que ReadMoveInput: las acciones creadas por codigo pueden no entregar
+    // input. Si la accion SI funciona, los guardas de cooldown evitan el doble disparo.
+    private void HandleDirectKeys()
+    {
+        if (Keyboard.current == null) return;
+
+        if (Keyboard.current.leftCtrlKey.wasPressedThisFrame)
+            TryStartDash();
+
+        if (Keyboard.current.cKey.wasPressedThisFrame)
+            TryStartSlide();
     }
 
     // Lee el salto con el NUEVO Input System de forma garantizada.
@@ -302,7 +449,9 @@ public class PlayerMotor : MonoBehaviour
 
     private void HandleMovement()
     {
-        Vector2 input = _moveAction != null ? _moveAction.ReadValue<Vector2>() : Vector2.zero;
+        if (_isSliding) return;   // durante la barrida se mueve HandleSlide
+
+        Vector2 input = ReadMoveInput();
 
         // Get camera-relative movement direction
         Vector3 forward = Vector3.zero;
@@ -326,7 +475,7 @@ public class PlayerMotor : MonoBehaviour
         Vector3 moveDirection = (forward * input.y + right * input.x).normalized;
 
         // Determine speed
-        bool isSprinting = _sprintAction != null && _sprintAction.IsPressed() && input.sqrMagnitude > 0.01f;
+        bool isSprinting = IsSprintHeld() && input.sqrMagnitude > 0.01f;
         float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
 
         // Apply movement
@@ -365,7 +514,18 @@ public class PlayerMotor : MonoBehaviour
     {
         if (_isDashing) return;
 
-        Vector2 input = _moveAction != null ? _moveAction.ReadValue<Vector2>() : Vector2.zero;
+        // Durante la barrida, el cuerpo mira en la direccion del deslizamiento.
+        if (_isSliding)
+        {
+            if (_slideDirection.sqrMagnitude > 0.001f)
+            {
+                Quaternion slideRotation = Quaternion.LookRotation(_slideDirection);
+                transform.rotation = Quaternion.Slerp(transform.rotation, slideRotation, rotationSpeed * Time.deltaTime);
+            }
+            return;
+        }
+
+        Vector2 input = ReadMoveInput();
 
         if (input.sqrMagnitude > 0.01f)
         {
@@ -412,12 +572,91 @@ public class PlayerMotor : MonoBehaviour
         }
     }
 
+    // ---------- Slide / Barrida (tecla C) ----------
+
+    private void HandleSlide()
+    {
+        if (_slideCooldownTimer > 0f)
+        {
+            _slideCooldownTimer -= Time.deltaTime;
+            if (_slideCooldownTimer < 0f) _slideCooldownTimer = 0f;
+        }
+
+        // Si nos quedamos agachados porque no habia hueco, reintentamos levantarnos.
+        if (!_isSliding)
+        {
+            if (_crouchBlocked && HasHeadroom(_standingHeight))
+            {
+                ApplyCrouch(_standingHeight);
+                _crouchBlocked = false;
+            }
+            return;
+        }
+
+        _slideTimer -= Time.deltaTime;
+
+        // El impulso va frenando de slideSpeed hasta ~walkSpeed (sensacion de derrape).
+        float t = Mathf.Clamp01(_slideTimer / Mathf.Max(0.01f, slideDuration));
+        float speed = Mathf.Lerp(walkSpeed, slideSpeed, t);
+
+        Vector3 motion = _slideDirection * speed;
+        motion.y = _velocity.y;   // mantenemos la gravedad durante la barrida
+
+        characterController.Move(motion * Time.deltaTime);
+
+        if (_slideTimer <= 0f)
+        {
+            _isSliding = false;
+            _slideTimer = 0f;
+
+            // Restauramos la altura a la original (si hay techo encima, esperamos).
+            if (HasHeadroom(_standingHeight)) ApplyCrouch(_standingHeight);
+            else _crouchBlocked = true;
+
+            OnSlideEnd?.Invoke();
+        }
+    }
+
+    // Cambia la altura del CharacterController RECOLOCANDO el center para que los
+    // pies se queden en el mismo sitio (center.y = altura / 2).
+    private void ApplyCrouch(float height)
+    {
+        if (characterController == null) return;
+        characterController.height = height;
+        characterController.center = new Vector3(_standingCenter.x, height * 0.5f, _standingCenter.z);
+    }
+
+    // Comprueba que hay espacio vertical para volver a la altura indicada.
+    private bool HasHeadroom(float targetHeight)
+    {
+        if (characterController == null) return true;
+
+        float grow = targetHeight - characterController.height;
+        if (grow <= 0.001f) return true;
+
+        float radius = Mathf.Max(0.05f, characterController.radius * 0.95f);
+        Vector3 origin = new Vector3(
+            transform.position.x,
+            transform.position.y + characterController.center.y + characterController.height * 0.5f - radius,
+            transform.position.z);
+
+        RaycastHit[] hits = Physics.SphereCastAll(origin, radius, Vector3.up, grow + 0.05f, groundLayer, QueryTriggerInteraction.Ignore);
+        for (int i = 0; i < hits.Length; i++)
+        {
+            // Ignoramos nuestros propios colliders (el CharacterController).
+            if (hits[i].collider == null) continue;
+            if (hits[i].collider.transform.root == transform.root) continue;
+            return false;
+        }
+        return true;
+    }
+
     // Phase 7: Animation Controller support
     private bool _phase7AnimationSupport = true;
 
     // Public properties for animation controller and other scripts
-    public float CurrentSpeed => _isDashing ? dashSpeed : (_sprintAction != null && _sprintAction.IsPressed() && _moveAction != null && _moveAction.ReadValue<Vector2>().sqrMagnitude > 0.01f ? sprintSpeed : walkSpeed);
-    public bool IsSprinting => _sprintAction != null && _sprintAction.IsPressed() && _moveAction != null && _moveAction.ReadValue<Vector2>().sqrMagnitude > 0.01f;
+    public float CurrentSpeed => _isDashing ? dashSpeed : (IsSprintHeld() && ReadMoveInput().sqrMagnitude > 0.01f ? sprintSpeed : walkSpeed);
+    public bool IsSprinting => IsSprintHeld() && ReadMoveInput().sqrMagnitude > 0.01f;
     public bool IsGrounded => _isGrounded;
     public bool IsDashing => _isDashing;
     public bool JumpRequested => _jumpRequested;
@@ -426,10 +665,17 @@ public class PlayerMotor : MonoBehaviour
     public float VerticalVelocity => _verticalVelocity;
     public Vector3 Velocity => _velocity;
     public bool ShootRequested { get; set; }
-    
+
+    // Lo levanta PlayerShooting MIENTRAS se mantiene el clic: el Animator lo usa
+    // para ciclar la animacion de disparo (IsShooting).
+    public bool IsShooting { get; set; }
+    public bool IsSliding => _isSliding;
+
     public event Action OnShoot;
     public event Action OnJump;
     public event Action OnDash;
+    public event Action OnSlide;
+    public event Action OnSlideEnd;
     public event Action OnLand;
 
     // Force recompile v22
@@ -447,6 +693,8 @@ public class PlayerMotor : MonoBehaviour
         if (dashCooldown < 0.1f) dashCooldown = 0.1f;
         if (walkSpeed < 0.1f) walkSpeed = 0.1f;
         if (sprintSpeed < walkSpeed) sprintSpeed = walkSpeed + 1f;
+        if (slideHeight < 0.5f) slideHeight = 0.5f;
+        if (slideDuration < 0.05f) slideDuration = 0.05f;
     }
 
     // Public method for other scripts to trigger shoot event

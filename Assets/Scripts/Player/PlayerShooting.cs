@@ -30,6 +30,7 @@ public class PlayerShooting : MonoBehaviour
 
     private InputAction _attackAction;
     private bool _ownsAttackAction = false;
+    private bool _attackActionWarned = false;
     private float _nextFireTime = 0f;
     private LineRenderer _tracerRenderer;
     private CameraShake _cameraShake;
@@ -96,6 +97,9 @@ public class PlayerShooting : MonoBehaviour
     private void OnDisable()
     {
         _attackAction?.Disable();
+
+        // Evita que la animacion de disparo se quede en loop si nos desactivan disparando.
+        if (playerMotor != null) playerMotor.IsShooting = false;
     }
 
     private void OnDestroy()
@@ -106,31 +110,27 @@ public class PlayerShooting : MonoBehaviour
 
     private void Update()
     {
-        if (_attackAction == null) return;
+        // Clic izquierdo: accion o lectura DIRECTA del raton. Mismo criterio que el
+        // WASD en PlayerMotor (y que la camara, que ya lee Mouse.current.delta):
+        // en este proyecto la lectura directa del dispositivo es la fiable.
+        bool attackPressed = _attackAction != null && _attackAction.IsPressed();
+        bool mousePressed = Mouse.current != null && Mouse.current.leftButton.isPressed;
 
-        // Equivalente a Input.GetMouseButtonDown(0) con el NUEVO Input System:
-        // true SOLO en el frame exacto en que se pulsa el botón.
-        bool justPressed = _attackAction.WasPressedThisFrame();
-
-        if (justPressed)
+        if (!attackPressed && mousePressed && !_attackActionWarned)
         {
-            // La animación de disparo se dispara UNA sola vez por clic.
-            NotifyShootAnimation();
-            TryFire();
+            _attackActionWarned = true;
+            Debug.LogWarning("[PlayerShooting] La accion 'Attack' no entrega input; usando Mouse.current directamente.");
         }
-        else if (_attackAction.IsPressed())
-        {
-            // Fuego automático mientras se mantiene (NO re-dispara la animación).
-            TryFire();
-        }
-    }
 
-    // Dispara el evento de animación una sola vez por pulsación.
-    private void NotifyShootAnimation()
-    {
-        if (playerMotor == null) return;
-        playerMotor.TriggerShootEvent();
-        playerMotor.ShootRequested = true;
+        // Mientras se mantiene el clic, el Animator recibe IsShooting = true y la
+        // animacion de disparo queda en LOOP. El ritmo real de disparo lo marca fireRate.
+        bool shooting = attackPressed || mousePressed;
+
+        if (playerMotor != null)
+            playerMotor.IsShooting = shooting;
+
+        if (shooting)
+            TryFire();
     }
 
     private void TryFire()
@@ -186,16 +186,12 @@ public class PlayerShooting : MonoBehaviour
 
     private void OnHit(RaycastHit hit)
     {
-        Debug.Log($"Hit: {hit.collider.name} at {hit.point}, distance: {hit.distance}");
+        if (!hit.collider.CompareTag(enemyTag)) return;
 
-        if (hit.collider.CompareTag(enemyTag))
+        EnemyHealth enemyHealth = hit.collider.GetComponent<EnemyHealth>();
+        if (enemyHealth != null)
         {
-            EnemyHealth enemyHealth = hit.collider.GetComponent<EnemyHealth>();
-            if (enemyHealth != null)
-            {
-                enemyHealth.TakeDamage(damagePerShot);
-                Debug.Log($"Damaged enemy! ({damagePerShot} damage)");
-            }
+            enemyHealth.TakeDamage(damagePerShot);
         }
     }
 

@@ -35,7 +35,6 @@ public class PlayerHealth : MonoBehaviour
 
         currentHealth = Mathf.Max(0, currentHealth - amount);
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
-        Debug.Log($"[PlayerHealth] Player took {amount} damage. Health: {currentHealth}/{maxHealth}");
 
         // Trigger camera shake on damage
         _cameraShake?.ShakeForDamage();

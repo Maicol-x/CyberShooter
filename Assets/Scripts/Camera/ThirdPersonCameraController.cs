@@ -107,6 +107,13 @@ public class ThirdPersonCameraController : MonoBehaviour
         HandleRotation();
         HandlePosition();
         HandleCollision();
+
+        // El shake se aplica SIEMPRE al final y en espacio local de la camara:
+        // asi HandleCollision (que recalcula la posicion) no lo sobrescribe.
+        if (shakeOffset != Vector3.zero)
+        {
+            transform.position += transform.rotation * shakeOffset;
+        }
     }
 
     private void HandleRotation()
@@ -135,7 +142,7 @@ public class ThirdPersonCameraController : MonoBehaviour
     {
         // Calculate desired position based on rotation and offset
         Vector3 rotatedOffset = transform.rotation * offset;
-        Vector3 desiredPosition = target.position + rotatedOffset + shakeOffset;
+        Vector3 desiredPosition = target.position + rotatedOffset;
 
         transform.position = desiredPosition;
     }
