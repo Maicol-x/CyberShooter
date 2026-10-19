@@ -19,11 +19,18 @@ public class EnemyAI : MonoBehaviour
     public LayerMask playerLayer;
     public LayerMask obstacleLayer;
 
+    [Header("Separacion (evitar apilarse)")]
+    [Tooltip("Con todos persiguiendo el mismo punto acaban metiendose unos dentro de otros.")]
+    public float separationRadius = 1.6f;
+    public float separationStrength = 3f;
+
     [Header("Attack")]
     public float attackRange = 12f;   // antes 25 m: ahora se acercan de verdad
     public float aimHeight = 1.0f;    // apunta al pecho del jugador, no a los pies
     public float fireRate = 1f;
     public int damagePerShot = 10;
+    [Tooltip("Dispersion del disparo en grados. Con 0 los enemigos aciertan el 100%.")]
+    public float aimSpreadDegrees = 3f;
     public Transform muzzlePoint;
     public float tracerDuration = 0.06f;
     public float tracerWidth = 0.08f;
@@ -134,10 +141,15 @@ public class EnemyAI : MonoBehaviour
 
         if (distanceToPlayer <= detectionRange && _canSeePlayer)
         {
-            // Chase player
-            MoveTowardsPlayer();
+            // Se acerca hasta stopDistance y ahi se planta. Antes se llamaba a
+            // MoveTowardsPlayer() SIEMPRE: seguian empujando hasta meterse dentro del
+            // jugador y stopDistance no se usaba para nada.
+            if (distanceToPlayer > stopDistance)
+                MoveTowardsPlayer();
+            else
+                HoldPosition();
 
-            // Stop at attack range, face player and shoot
+            // Dentro del alcance de tiro: encarar y disparar.
             if (distanceToPlayer <= attackRange)
             {
                 FacePlayer();
@@ -160,7 +172,13 @@ public class EnemyAI : MonoBehaviour
         if (_controller != null)
         {
             UpdateVerticalVelocity();
-            Vector3 move = direction * moveSpeed;
+
+            // Separacion: empuje para no amontonarse. Sin esto los 12 acaban
+            // persiguiendo el mismo punto exacto y se solapan unos con otros.
+            Vector3 steer = direction + GetSeparation();
+            if (steer.sqrMagnitude > 0.0001f) steer.Normalize();
+
+            Vector3 move = steer * moveSpeed;
             move.y = _verticalVelocity;
             _controller.Move(move * Time.deltaTime);
         }
@@ -184,6 +202,52 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    // Ya esta a distancia de parada: nada de avanzar, solo gravedad y separacion.
+    private void HoldPosition()
+    {
+        if (_controller == null) return;
+
+        UpdateVerticalVelocity();
+        Vector3 move = GetSeparation();
+        move.y = _verticalVelocity;
+        _controller.Move(move * Time.deltaTime);
+    }
+
+    private static readonly Collider[] _vecinos = new Collider[10];
+
+    // Empuje en sentido contrario a los enemigos que tengo pegados.
+    private Vector3 GetSeparation()
+    {
+        if (separationStrength <= 0f) return Vector3.zero;
+
+        float radius = Mathf.Max(0.5f, separationRadius);
+        int n = Physics.OverlapSphereNonAlloc(transform.position, radius, _vecinos, ~0, QueryTriggerInteraction.Ignore);
+
+        Vector3 push = Vector3.zero;
+        for (int i = 0; i < n; i++)
+        {
+            Collider otro = _vecinos[i];
+            if (otro == null) continue;
+            if (otro.transform.root == transform.root) continue;   // yo mismo
+            if (!otro.CompareTag("Enemy")) continue;               // solo enemigos
+
+            Vector3 away = transform.position - otro.transform.position;
+            away.y = 0f;
+            float d = away.magnitude;
+            if (d < 0.01f)
+            {
+                away = Random.insideUnitSphere;
+                away.y = 0f;
+                d = 1f;
+            }
+
+            push += away.normalized * (1f - Mathf.Clamp01(d / radius));
+        }
+
+        if (push.sqrMagnitude > 1f) push.Normalize();
+        return push * separationStrength;
+    }
+
     private void ShootAtPlayer()
     {
         _fireTimer += Time.deltaTime;
@@ -204,9 +268,24 @@ public class EnemyAI : MonoBehaviour
         Vector3 direction = (GetPlayerAimPoint() - muzzlePoint.position).normalized;
         Vector3 origin = muzzlePoint.position;
 
+        // Dispersion: con 12 enemigos, si aciertan el 100% de los tiros dentro de 12 m
+        // el jugador muere en segundos y no hay nada que hacer. Con 3º fallan algunos.
+        if (aimSpreadDegrees > 0.01f)
+        {
+            float yawOffset = Random.Range(-aimSpreadDegrees, aimSpreadDegrees);
+            float pitchOffset = Random.Range(-aimSpreadDegrees, aimSpreadDegrees);
+            direction = Quaternion.Euler(pitchOffset, yawOffset, 0f) * direction;
+        }
+
+        // OJO: el mask debe INCLUIR al jugador (y a lo que tape el tiro); el daño se
+        // decide luego por tag. Antes era "~playerLayer" y, en cuanto exista una capa
+        // "Player", habria EXCLUIDO al jugador: los enemigos no harian daño NUNCA.
+        int shotMask = LayerMask.GetMask("Default", "Ground", "Player", "Enemy");
+        if (shotMask == 0) shotMask = ~0;
+
         // Raycast hacia el jugador - detecta si hay algo entre medio
         RaycastHit hit;
-        bool hasHit = Physics.Raycast(origin, direction, out hit, attackRange, ~playerLayer);
+        bool hasHit = Physics.Raycast(origin, direction, out hit, attackRange, shotMask, QueryTriggerInteraction.Ignore);
 
         Vector3 endPoint = hasHit ? hit.point : origin + direction * attackRange;
 

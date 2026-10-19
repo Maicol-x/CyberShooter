@@ -69,6 +69,12 @@ public class EnemySpawner : MonoBehaviour
         enemy.transform.position = spawnPos;   // los pies tocan el suelo
         enemy.tag = "Enemy";
 
+        // Capa Enemy (si existe): asi la camara del jugador puede ignorarlos y no
+        // la empujan cuando se te acercan por detras. NameToLayer devuelve -1 si la
+        // capa no existe, y asignar -1 lanzaria excepcion.
+        int enemyLayer = LayerMask.NameToLayer("Enemy");
+        if (enemyLayer >= 0) enemy.layer = enemyLayer;
+
         GameObject body = GameObject.CreatePrimitive(PrimitiveType.Cube);
         body.name = "Body";
         body.transform.SetParent(enemy.transform, false);
