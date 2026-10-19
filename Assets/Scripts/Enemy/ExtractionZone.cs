@@ -134,17 +134,21 @@ public class ExtractionZone : MonoBehaviour
             _triggered = true;
             Debug.Log("[ExtractionZone] NIVEL COMPLETADO!");
 
-            // Mostrar UI de nivel completado
+            // Mostrar UI de nivel completado. El UIManager se encarga de congelar el
+            // tiempo Y de ofrecer el reinicio (R/Enter): antes esta clase ponía
+            // Time.timeScale = 0 y ahí se quedaba, sin forma de volver a jugar.
             var ui = Object.FindAnyObjectByType<UIManager>();
             if (ui != null)
             {
                 ui.ShowLevelComplete();
             }
+            else
+            {
+                // Sin UI no hay reinicio posible: al menos no dejamos el juego suelto.
+                Time.timeScale = 0f;
+            }
 
-            // Congelar el tiempo
-            Time.timeScale = 0f;
-
-            Debug.Log($"[ExtractionZone] {levelCompleteMessage} - Tiempo congelado");
+            Debug.Log($"[ExtractionZone] {levelCompleteMessage}");
         }
     }
 }

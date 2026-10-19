@@ -96,24 +96,29 @@ public class PlayerMotor : MonoBehaviour
         ResolveActions();
     }
 
+    // Busca una accion en el asset: primero por nombre suelto y, si no, dentro del
+    // mapa indicado en actionMapName (antes estaba puesto "Player/" a pelo y el
+    // campo actionMapName no se usaba: era un CS0414).
+    private InputAction FindActionByName(string actionName)
+    {
+        if (inputActions == null || string.IsNullOrEmpty(actionName)) return null;
+
+        InputAction action = inputActions.FindAction(actionName, false);
+        if (action == null && !string.IsNullOrEmpty(actionMapName))
+            action = inputActions.FindAction($"{actionMapName}/{actionName}", false);
+
+        return action;
+    }
+
     private void ResolveActions()
     {
         if (inputActions != null)
         {
-            _moveAction = inputActions.FindAction(moveActionName, false)
-                          ?? inputActions.FindAction($"Player/{moveActionName}", false);
-
-            _jumpAction = inputActions.FindAction(jumpActionName, false)
-                          ?? inputActions.FindAction($"Player/{jumpActionName}", false);
-
-            _sprintAction = inputActions.FindAction(sprintActionName, false)
-                            ?? inputActions.FindAction($"Player/{sprintActionName}", false);
-
-            _dashAction = inputActions.FindAction(dashActionName, false)
-                           ?? inputActions.FindAction($"Player/{dashActionName}", false);
-
-            _slideAction = inputActions.FindAction(slideActionName, false)
-                            ?? inputActions.FindAction($"Player/{slideActionName}", false);
+            _moveAction = FindActionByName(moveActionName);
+            _jumpAction = FindActionByName(jumpActionName);
+            _sprintAction = FindActionByName(sprintActionName);
+            _dashAction = FindActionByName(dashActionName);
+            _slideAction = FindActionByName(slideActionName);
         }
 
         if (_moveAction == null)
@@ -194,6 +199,11 @@ public class PlayerMotor : MonoBehaviour
 
     private void OnEnable()
     {
+        // OJO: activar una accion suelta que vive en un mapa DESHABILITADO no sirve:
+        // devolvia siempre 0 y por eso entraba el respaldo de teclado (y el aviso).
+        // Habilitamos el asset entero primero.
+        inputActions?.Enable();
+
         _moveAction?.Enable();
         _jumpAction?.Enable();
         _sprintAction?.Enable();
@@ -651,9 +661,6 @@ public class PlayerMotor : MonoBehaviour
         return true;
     }
 
-    // Phase 7: Animation Controller support
-    private bool _phase7AnimationSupport = true;
-
     // Public properties for animation controller and other scripts
     public float CurrentSpeed => _isDashing ? dashSpeed : (IsSprintHeld() && ReadMoveInput().sqrMagnitude > 0.01f ? sprintSpeed : walkSpeed);
     public bool IsSprinting => IsSprintHeld() && ReadMoveInput().sqrMagnitude > 0.01f;
@@ -677,12 +684,6 @@ public class PlayerMotor : MonoBehaviour
     public event Action OnSlide;
     public event Action OnSlideEnd;
     public event Action OnLand;
-
-    // Force recompile v22
-    private bool _forceRecompile = true;
-
-    // Force recompile v15
-    private bool _forceRecompile2 = true;
 
     private void OnValidate()
     {

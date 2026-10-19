@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
@@ -14,6 +16,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text _gameOverText;
     [SerializeField] private GameObject _levelCompletePanel;
     [SerializeField] private Text _levelCompleteText;
+    [SerializeField] private string _restartHint = "Pulsa R o Enter para reiniciar";
 
     [Header("Crosshair Settings (Center - Small)")]
     [SerializeField] private Sprite _crosshairSprite;
@@ -21,6 +24,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float _crosshairSize = 24f;
 
     private PlayerHealth _playerHealth;
+    private bool _restartArmed = false;
 
     private void Awake()
     {
@@ -35,7 +39,7 @@ public class UIManager : MonoBehaviour
     {
         if (_canvas == null)
         {
-            _canvas = FindObjectOfType<Canvas>();
+            _canvas = FindAnyObjectByType<Canvas>();
         }
 
         if (_canvas == null)
@@ -165,6 +169,8 @@ public class UIManager : MonoBehaviour
         textRect.sizeDelta = Vector2.zero;
         textRect.anchoredPosition = Vector2.zero;
 
+        CreateHint(_gameOverPanel, _restartHint);
+
         _gameOverPanel.SetActive(false);
 
         Debug.Log("[UIManager] Game Over panel created (hidden)");
@@ -202,6 +208,8 @@ public class UIManager : MonoBehaviour
         textRect.anchorMax = Vector2.one;
         textRect.sizeDelta = Vector2.zero;
         textRect.anchoredPosition = Vector2.zero;
+
+        CreateHint(_levelCompletePanel, _restartHint);
 
         _levelCompletePanel.SetActive(false);
 
@@ -243,6 +251,7 @@ public class UIManager : MonoBehaviour
                 _gameOverText.fontStyle = FontStyle.Bold;
             }
             Debug.Log("[UIManager] GAME OVER shown!");
+            FreezeAndArmRestart();
         }
     }
 
@@ -259,7 +268,82 @@ public class UIManager : MonoBehaviour
                 _levelCompleteText.fontStyle = FontStyle.Bold;
             }
             Debug.Log("[UIManager] NIVEL COMPLETADO shown!");
+            FreezeAndArmRestart();
         }
+    }
+
+    // ---------- Reinicio ----------
+    // Congela el tiempo y deja armada la tecla de reinicio. Lo usan la MUERTE y la
+    // EXTRACCIÓN: antes la extracción congelaba el tiempo y ahí te quedabas, sin
+    // ninguna forma de volver a jugar (había que parar el Play Mode a mano).
+    private void FreezeAndArmRestart()
+    {
+        Time.timeScale = 0f;
+        _restartArmed = true;
+        Debug.Log("[UIManager] Reinicio armado: pulsa R o Enter para volver a empezar.");
+    }
+
+    private void Update()
+    {
+        if (!_restartArmed) return;
+
+        Keyboard kb = Keyboard.current;
+        if (kb == null) return;
+
+        // Con Time.timeScale = 0 Update() sigue corriendo, así que la tecla responde.
+        if (kb.rKey.wasPressedThisFrame || kb.enterKey.wasPressedThisFrame || kb.spaceKey.wasPressedThisFrame)
+        {
+            RestartLevel();
+        }
+    }
+
+    public void RestartLevel()
+    {
+        if (!_restartArmed) return;
+
+        _restartArmed = false;
+
+        // LoadScene NO resetea Time.timeScale: si no lo devolvemos a 1, el nivel
+        // reiniciado arrancaría congelado (que es justo el bug que había).
+        Time.timeScale = 1f;
+
+        Scene scene = SceneManager.GetActiveScene();
+        if (scene.buildIndex >= 0)
+        {
+            Debug.Log($"[UIManager] Reiniciando '{scene.name}' (buildIndex {scene.buildIndex})");
+            SceneManager.LoadScene(scene.buildIndex);
+        }
+        else
+        {
+            // Escena no incluida en Build Settings pero abierta en el editor.
+            Debug.Log($"[UIManager] Reiniciando '{scene.name}' por nombre");
+            SceneManager.LoadScene(scene.name);
+        }
+    }
+
+    // Texto pequeño bajo el título con la tecla de reinicio.
+    private Text CreateHint(GameObject panel, string text)
+    {
+        GameObject hintObj = new GameObject("RestartHint");
+        hintObj.transform.SetParent(panel.transform, false);
+
+        Text hint = hintObj.AddComponent<Text>();
+        hint.text = text;
+        hint.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        hint.fontSize = 28;
+        hint.fontStyle = FontStyle.Normal;
+        hint.color = Color.white;
+        hint.alignment = TextAnchor.MiddleCenter;
+        hint.raycastTarget = false;
+
+        RectTransform rt = hint.rectTransform;
+        rt.anchorMin = new Vector2(0f, 0.5f);
+        rt.anchorMax = new Vector2(1f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 1f);
+        rt.sizeDelta = new Vector2(0f, 80f);
+        rt.anchoredPosition = new Vector2(0f, -70f);
+
+        return hint;
     }
 
     private void OnDestroy()

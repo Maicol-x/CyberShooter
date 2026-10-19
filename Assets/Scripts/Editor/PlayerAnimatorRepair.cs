@@ -9,11 +9,14 @@ namespace CyberShooter.EditorTools
     /// <summary>
     /// Reconstruye el AnimatorController "Playeranimator".
     ///
-    /// Diseño v2 (Fase B):
-    ///   Estados: Idle, walking, Running, Shoot, Jump, Barrida
+    /// Diseño v3 (pulido):
+    ///   Estados: Idle, walking, Running, Shoot, Jump, Barrida, Dash
     ///     - Idle/walking/Running se eligen con Speed + IsSprinting.
     ///     - Shoot se mantiene con el Bool IsShooting (loop mientras disparas).
-    ///     - Jump y Barrida son triggers de un solo disparo.
+    ///     - Jump sale al TOCAR SUELO (IsGrounded): el clip (0.67s) dura menos que
+    ///       el aire (~1.1s), por eso ademas va a 0.7x.
+    ///     - Barrida (trigger Barrida / tecla C) y Dash (trigger Dash / Ctrl izq.)
+    ///       reutilizan el clip de Barrida: no existe dash.fbx.
     ///
     /// - Se auto-repara una sola vez al cargar el editor SI el controlador
     ///   está vacío o incompleto (asi no pisamos cambios hechos a mano).
@@ -42,9 +45,10 @@ namespace CyberShooter.EditorTools
             "Assets/Models/Gunplay.fbx",                    // Shoot
             "Assets/Models/Jump.fbx",                       // Jump
             "Assets/Models/Barrida.fbx",                    // Barrida (slide)
+            "Assets/Models/Barrida.fbx",                    // Dash (no hay dash.fbx: reutiliza Barrida)
         };
 
-        private static readonly string[] StateNames = { "Idle", "walking", "Running", "Shoot", "Jump", "Barrida" };
+        private static readonly string[] StateNames = { "Idle", "walking", "Running", "Shoot", "Jump", "Barrida", "Dash" };
 
         // Indices para que el codigo de las transiciones se lea solo.
         private const int IDLE = 0;
@@ -53,6 +57,7 @@ namespace CyberShooter.EditorTools
         private const int SHOOT = 3;
         private const int JUMP = 4;
         private const int BARRIDA = 5;
+        private const int DASH = 6;
 
         static PlayerAnimatorRepair()
         {
@@ -151,7 +156,7 @@ namespace CyberShooter.EditorTools
 
             // Quién usa este controlador ahora mismo (para reasignar si hay que recrear el asset).
             var users = new List<Animator>();
-            var allAnimators = Object.FindObjectsByType<Animator>(FindObjectsSortMode.None);
+            var allAnimators = Object.FindObjectsByType<Animator>(FindObjectsInactive.Exclude);
             for (int i = 0; i < allAnimators.Length; i++)
             {
                 if (old != null && allAnimators[i].runtimeAnimatorController == old) users.Add(allAnimators[i]);
@@ -215,6 +220,14 @@ namespace CyberShooter.EditorTools
                 st[i].speed = 1f;
                 st[i].writeDefaultValues = true;
             }
+            // El personaje esta ~1.1s en el aire y el clip de salto dura 0.67s: lo
+            // reproducimos mas lento para que la animacion aguante todo el salto.
+            st[JUMP].speed = 0.7f;
+
+            // El dash dura 0.2s y reutiliza el clip de Barrida (1.53s): a 2x el clip
+            // efectivo dura ~0.76s y salimos a 0.26 => ~0.2s, justo lo que dura el dash.
+            st[DASH].speed = 2f;
+
             sm.defaultState = st[IDLE]; // Idle por defecto
 
             // ---- 4) Transiciones ----
@@ -269,12 +282,30 @@ namespace CyberShooter.EditorTools
             tShoot.AddCondition(AnimatorConditionMode.Greater, 0.1f, "Speed");
 
             // --- One-shots (triggers) ---
+            // Salto: NO salimos por tiempo, salimos cuando el motor avisa de que hemos
+            // tocado suelo. El exitTime 0.5 es solo una red de seguridad: Unity exige
+            // cumplir la condicion Y el tiempo.
             AddAnyState(sm, st[JUMP], "Jump");
-            AddExitToIdle(st[JUMP], st[IDLE], 0.9f, 0.2f);
+
+            var tj = AddExitOnGrounded(st[JUMP], st[IDLE], 0.5f, 0.15f);
+            tj.AddCondition(AnimatorConditionMode.Less, 0.1f, "Speed");
+
+            tj = AddExitOnGrounded(st[JUMP], st[RUN], 0.5f, 0.15f);
+            tj.AddCondition(AnimatorConditionMode.Greater, 0.1f, "Speed");
+            tj.AddCondition(AnimatorConditionMode.If, 0f, "IsSprinting");
+
+            tj = AddExitOnGrounded(st[JUMP], st[WALK], 0.5f, 0.15f);
+            tj.AddCondition(AnimatorConditionMode.Greater, 0.1f, "Speed");
+            tj.AddCondition(AnimatorConditionMode.IfNot, 0f, "IsSprinting");
 
             AddAnyState(sm, st[BARRIDA], "Barrida");
             // El clip de Barrida dura 1.53s y la barrida 0.5s: salimos al 33% (~0.5s).
             AddExitToIdle(st[BARRIDA], st[IDLE], 0.33f, 0.15f);
+
+            // Dash: mismo clip que la barrida pero a 2x (ver st[DASH].speed) y sale
+            // al 26% del clip efectivo => ~0.2s, que es lo que dura el dash.
+            AddAnyState(sm, st[DASH], "Dash");
+            AddExitToIdle(st[DASH], st[IDLE], 0.26f, 0.1f);
 
             // --- Auto-bucles (AL FINAL: solo actuan si no ha ganado otra transicion) ---
             // Los clips de ciclo NO tienen "Loop Time" en su FBX, asi que sin esto se
@@ -366,6 +397,20 @@ namespace CyberShooter.EditorTools
             t.exitTime = exitTime;
             t.hasFixedDuration = true;
             t.duration = duration;
+        }
+
+        // Salida del salto: espera a que el motor diga "en el suelo" (IsGrounded).
+        // El exitTime es una red de seguridad para que no salga en el primer instante.
+        private static AnimatorStateTransition AddExitOnGrounded(AnimatorState from, AnimatorState to, float exitTime, float duration)
+        {
+            var t = from.AddTransition(to);
+            t.hasExitTime = true;
+            t.exitTime = exitTime;
+            t.hasFixedDuration = true;
+            t.duration = duration;
+            t.canTransitionToSelf = false;
+            t.AddCondition(AnimatorConditionMode.If, 0f, "IsGrounded");
+            return t;
         }
 
         private static void EnsureParameter(AnimatorController c, string name, AnimatorControllerParameterType type)

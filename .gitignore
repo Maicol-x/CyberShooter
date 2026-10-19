@@ -112,3 +112,7 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# Copia de seguridad manual fuera de Assets (escena _Recovery que Unity dejó tras un
+# cierre inesperado). NO es contenido del proyecto: no debe versionarse.
+_Recovery_backup/

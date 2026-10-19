@@ -21,7 +21,9 @@ public class PlayerAnimationController : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private float speedDampTime = 0.1f;
-    [SerializeField] private float groundedThreshold = 0.1f;
+    // groundedThreshold SE BORRÓ (CS0414): quien decide si pisamos suelo es
+    // PlayerMotor (con su CharacterController + SphereCast + coyote time), aquí
+    // solo se lee _motor.IsGrounded.
 
     private Animator _animator;
     private PlayerMotor _motor;

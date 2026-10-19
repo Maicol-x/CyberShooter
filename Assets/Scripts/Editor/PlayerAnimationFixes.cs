@@ -83,7 +83,7 @@ namespace CyberShooter.EditorTools
                 if (!clips[0].loopTime || !clips[0].loopPose) return true;
             }
 
-            var animators = Object.FindObjectsByType<Animator>(FindObjectsSortMode.None);
+            var animators = Object.FindObjectsByType<Animator>(FindObjectsInactive.Exclude);
             for (int i = 0; i < animators.Length; i++)
             {
                 if (animators[i].applyRootMotion) return true;
@@ -164,7 +164,7 @@ namespace CyberShooter.EditorTools
             }
 
             // ---- 3) Apply Root Motion = OFF ----
-            var animators = Object.FindObjectsByType<Animator>(FindObjectsSortMode.None);
+            var animators = Object.FindObjectsByType<Animator>(FindObjectsInactive.Exclude);
             bool tocoEscena = false;
             for (int i = 0; i < animators.Length; i++)
             {

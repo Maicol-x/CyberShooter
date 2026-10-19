@@ -8,8 +8,8 @@ using UnityEngine;
 public class CameraShake : MonoBehaviour
 {
     [Header("Shake Settings")]
-    [SerializeField] private float shakeDuration = 0.15f;
-    [SerializeField] private float shakeMagnitude = 0.05f;
+    // shakeDuration/shakeMagnitude genéricos SE BORRARON (CS0414): no se usaban en
+    // ningún sitio. Cada efecto tiene los suyos (disparo y daño, más abajo).
     [SerializeField] private float shakeDecay = 1f;
 
     [Header("Shoot Shake")]
@@ -31,9 +31,6 @@ public class CameraShake : MonoBehaviour
         {
             Debug.LogError("[CameraShake] No ThirdPersonCameraController found on this GameObject!");
         }
-
-        // Phase 7 marker reload
-        bool _markerCheck = true;
     }
 
     private void LateUpdate()

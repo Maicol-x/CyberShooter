@@ -15,17 +15,11 @@ public class CameraTargetSetup : MonoBehaviour
     {
         if (target == null)
         {
-            var ez = GameObject.FindWithTag("ExtractionZone");
-            if (ez == null)
-            {
-                var extractionZone = GameObject.Find("ExtractionZone");
-                if (extractionZone != null)
-                    target = extractionZone.transform;
-            }
-            else
-            {
-                target = ez.transform;
-            }
+            // OJO: GameObject.FindWithTag LANZA una excepción si el tag no existe en
+            // el proyecto; buscamos por nombre (el objeto se llama igual).
+            var extractionZone = GameObject.Find("ExtractionZone");
+            if (extractionZone != null)
+                target = extractionZone.transform;
         }
 
         if (target != null)
@@ -35,8 +29,13 @@ public class CameraTargetSetup : MonoBehaviour
             if (cam != null)
             {
                 cam.transform.position = target.position + cameraOffset;
-                cam.transform.LookAt(target.position + Vector3.up * 5f);
-                Debug.Log($"[CameraTargetSetup] Cámara posicionada mirando hacia ExtractionZone en {target.position}");
+
+                // lookAtTarget estaba sin usar (CS0414): ahora decide de verdad si
+                // además orientamos la cámara hacia la meta.
+                if (lookAtTarget)
+                    cam.transform.LookAt(target.position + Vector3.up * 5f);
+
+                Debug.Log($"[CameraTargetSetup] Cámara posicionada mirando hacia ExtractionZone en {target.position} (lookAt={lookAtTarget})");
             }
         }
     }

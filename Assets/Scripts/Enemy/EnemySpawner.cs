@@ -6,7 +6,10 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private float spawnIntervalMin = 2f;
     [SerializeField] private float spawnIntervalMax = 4f;
     [SerializeField] private int maxEnemiesAlive = 15;
-    [SerializeField] private float spawnRange = 200f;
+    // spawnRange (200) estaba muerto (CS0414): el spawn usaba 30..100 fijos. Ahora
+    // es configurable y se usa de verdad (mismo comportamiento por defecto).
+    [SerializeField] private float spawnRangeMin = 30f;
+    [SerializeField] private float spawnRangeMax = 100f;
 
     [Header("Enemy Settings")]
     [SerializeField] private float enemyMoveSpeed = 4f;
@@ -122,7 +125,9 @@ public class EnemySpawner : MonoBehaviour
         if (playerTransform == null) return Vector3.zero;
 
         float angle = Random.Range(0f, Mathf.PI * 2f);
-        float distance = Random.Range(30f, 100f);
+        float min = Mathf.Min(spawnRangeMin, spawnRangeMax);
+        float max = Mathf.Max(spawnRangeMin, spawnRangeMax);
+        float distance = Random.Range(min, max);
 
         Vector3 offset = new Vector3(
             Mathf.Cos(angle) * distance,

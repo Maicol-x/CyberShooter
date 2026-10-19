@@ -42,7 +42,7 @@ public class PlayerShooting : MonoBehaviour
 
         if (muzzlePoint == null)
         {
-            muzzlePoint = transform.Find("MuzzlePoint");
+            muzzlePoint = ResolveMuzzlePoint();
         }
 
         if (playerMotor == null)
@@ -60,8 +60,11 @@ public class PlayerShooting : MonoBehaviour
     {
         if (inputActions != null)
         {
-            _attackAction = inputActions.FindAction(attackActionName, false)
-                          ?? inputActions.FindAction($"Player/{attackActionName}", false);
+            // actionMapName estaba sin usar (CS0414): ahora es lo que indica el mapa.
+            _attackAction = inputActions.FindAction(attackActionName, false);
+
+            if (_attackAction == null && !string.IsNullOrEmpty(actionMapName))
+                _attackAction = inputActions.FindAction($"{actionMapName}/{attackActionName}", false);
         }
 
         if (_attackAction == null)
@@ -69,6 +72,36 @@ public class PlayerShooting : MonoBehaviour
             _attackAction = new InputAction("Attack", InputActionType.Button, "<Mouse>/leftButton");
             _ownsAttackAction = true;
         }
+    }
+
+    // Punto de salida de la trazadora. No hay un objeto "MuzzlePoint" ni modelo de
+    // arma, así que usamos la MANO DERECHA del esqueleto (Mixamo/Ch44), que es donde
+    // iría el arma: así la trazadora nace del personaje y no de la cámara.
+    // Si no encontramos ninguna mano, devolvemos null y se usa la cámara.
+    private Transform ResolveMuzzlePoint()
+    {
+        Transform byName = transform.Find("MuzzlePoint");
+        if (byName != null) return byName;
+
+        string[] claves = { "righthand", "hand_r", "right_hand", "muzzle" };
+        Transform[] all = GetComponentsInChildren<Transform>(true);
+
+        for (int i = 0; i < all.Length; i++)
+        {
+            if (all[i] == null) continue;
+
+            string nombre = all[i].name.ToLowerInvariant();
+            for (int k = 0; k < claves.Length; k++)
+            {
+                if (nombre.Contains(claves[k]))
+                {
+                    Debug.Log($"[PlayerShooting] MuzzlePoint: usando el hueso '{all[i].name}' (no existía el objeto MuzzlePoint).");
+                    return all[i];
+                }
+            }
+        }
+
+        return null;
     }
 
     private void SetupTracerRenderer()
@@ -91,6 +124,10 @@ public class PlayerShooting : MonoBehaviour
 
     private void OnEnable()
     {
+        // El asset entero antes que la accion (mismo caso que en PlayerMotor): una
+        // accion dentro de un mapa deshabilitado no recibe input y devuelve 0.
+        inputActions?.Enable();
+
         _attackAction?.Enable();
     }
 
@@ -144,26 +181,55 @@ public class PlayerShooting : MonoBehaviour
 
     private void Fire()
     {
+        if (playerCamera == null) return;
+
         Vector3 screenCenter = new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0f);
         Ray ray = playerCamera.ScreenPointToRay(screenCenter);
 
-        Vector3 origin = muzzlePoint != null ? muzzlePoint.position : playerCamera.transform.position;
+        // El impacto se calcula DESDE LA CÁMARA (así coincide con la mira) y la
+        // trazadora se dibuja DESDE EL ARMA hasta el punto de impacto. Antes se
+        // lanzaba el rayo desde el muzzle, con lo que el disparo se desviaba.
+        Vector3 origin = playerCamera.transform.position;
         Vector3 direction = ray.direction;
 
         RaycastHit hit;
-        bool hasHit = Physics.Raycast(origin, direction, out hit, maxDistance, hitLayers, QueryTriggerInteraction.Ignore);
+        Vector3 endPoint = EvaluateShot(origin, direction, out hit);
 
-        Vector3 endPoint = hasHit ? hit.point : origin + direction * maxDistance;
-
-        ShowTracer(origin, endPoint);
+        Vector3 tracerStart = muzzlePoint != null ? muzzlePoint.position : origin;
+        ShowTracer(tracerStart, endPoint);
 
         // Trigger camera shake for shooting
         _cameraShake?.ShakeForShoot();
 
-        if (hasHit)
+        if (hit.collider != null)
         {
             OnHit(hit);
         }
+    }
+
+    // Devuelve el punto final visible del disparo y, si toca algo, el impacto.
+    // Ignora los colliders del propio jugador: en tercera persona la cámara está
+    // detrás del personaje y el rayo le daba a la espalda (no se podía acertar).
+    private Vector3 EvaluateShot(Vector3 origin, Vector3 direction, out RaycastHit hit)
+    {
+        hit = default(RaycastHit);
+
+        RaycastHit[] hits = Physics.RaycastAll(origin, direction, maxDistance, hitLayers, QueryTriggerInteraction.Ignore);
+        if (hits == null || hits.Length == 0)
+            return origin + direction * maxDistance;
+
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            if (hits[i].collider == null) continue;
+            if (hits[i].collider.transform.root == transform.root) continue;   // soy yo
+
+            hit = hits[i];
+            return hit.point;
+        }
+
+        return origin + direction * maxDistance;
     }
 
     private void ShowTracer(Vector3 start, Vector3 end)
@@ -203,7 +269,4 @@ public class PlayerShooting : MonoBehaviour
         if (tracerDuration < 0f) tracerDuration = 0f;
         if (tracerWidth < 0f) tracerWidth = 0f;
     }
-
-    // Phase 7 marker
-    private bool _phase7 = true;
 }

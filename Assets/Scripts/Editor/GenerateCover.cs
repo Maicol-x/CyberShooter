@@ -38,7 +38,6 @@ public class GenerateCover
         int rows = 6;         // Filas a lo largo del eje Z
 
         float zStep = (zEnd - zStart) / rows;
-        float xRange = 100f;  // Rango en X: -50 a 50
 
         System.Random rand = new System.Random(42); // Semilla fija para reproducibilidad
 

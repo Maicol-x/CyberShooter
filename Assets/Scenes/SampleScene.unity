@@ -2298,8 +2298,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2250d8bfb5107424d85bfd16c516886a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraShake
-  shakeDuration: 0.15
-  shakeMagnitude: 0.05
   shakeDecay: 1
   shootShakeMagnitude: 0.03
   shootShakeDuration: 0.08
@@ -3370,6 +3368,7 @@ MonoBehaviour:
   _gameOverText: {fileID: 0}
   _levelCompletePanel: {fileID: 0}
   _levelCompleteText: {fileID: 0}
+  _restartHint: Pulsa R o Enter para reiniciar
   _crosshairSprite: {fileID: 0}
   _crosshairColor: {r: 1, g: 1, b: 1, a: 1}
   _crosshairSize: 32
@@ -5110,7 +5109,6 @@ MonoBehaviour:
   shootTrigger: Shoot
   dashTrigger: Dash
   speedDampTime: 0.1
-  groundedThreshold: 0.1
 --- !u!114 &926607877
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5145,7 +5143,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerShooting
   muzzlePoint: {fileID: 0}
   playerCamera: {fileID: 0}
-  inputActions: {fileID: 0}
+  inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   playerMotor: {fileID: 0}
   fireRate: 0.12
   maxDistance: 100
@@ -5172,7 +5170,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMotor
   characterController: {fileID: 926607880}
-  inputActions: {fileID: 0}
+  inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   cameraTransform: {fileID: 0}
   actionMapName: Player
   moveActionName: Move
@@ -8352,7 +8350,8 @@ MonoBehaviour:
   spawnIntervalMin: 2
   spawnIntervalMax: 4
   maxEnemiesAlive: 15
-  spawnRange: 200
+  spawnRangeMin: 30
+  spawnRangeMax: 100
   enemyMoveSpeed: 4
   enemyMaxHealth: 30
   playerTransform: {fileID: 0}
@@ -11630,7 +11629,7 @@ Transform:
   m_GameObject: {fileID: 1927329896}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 400}
+  m_LocalPosition: {x: 0, y: 0.5, z: 68}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

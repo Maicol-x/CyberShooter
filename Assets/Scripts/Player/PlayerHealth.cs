@@ -75,7 +75,7 @@ public class PlayerHealth : MonoBehaviour
         }
 
         // Disable camera look
-        ThirdPersonCameraController cam = Object.FindObjectOfType<ThirdPersonCameraController>();
+        ThirdPersonCameraController cam = Object.FindAnyObjectByType<ThirdPersonCameraController>();
         if (cam != null)
         {
             cam.enabled = false;
