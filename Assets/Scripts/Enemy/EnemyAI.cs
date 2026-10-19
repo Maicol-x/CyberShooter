@@ -38,6 +38,8 @@ public class EnemyAI : MonoBehaviour
 
     [Header("Debug")]
     [SerializeField] private bool showGizmos = true;
+    [Tooltip("Ajusta el CharacterController a la malla visible al arrancar. Los prefabs humanoides traen su collider ya configurado, asi que va apagado.")]
+    public bool autoFitHitbox = false;
 
     private CharacterController _controller;
     private Transform _playerTransform;
@@ -53,7 +55,11 @@ public class EnemyAI : MonoBehaviour
     private void Awake()
     {
         _controller = GetComponent<CharacterController>();
-        ApplyHitbox();
+
+        // Los prefabs humanoides ya traen el collider a medida (height/radius/center
+        // puestos a mano). El ajuste automatico desde la malla solo se usa en el
+        // cubo de emergencia, donde la malla ES la forma real.
+        if (autoFitHitbox) ApplyHitbox();
     }
 
     /// <summary>

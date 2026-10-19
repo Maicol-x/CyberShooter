@@ -13,6 +13,7 @@ public class PlayerShooting : MonoBehaviour
     [SerializeField] private Camera playerCamera;
     [SerializeField] private InputActionAsset inputActions;
     [SerializeField] private PlayerMotor playerMotor;
+    [SerializeField] private AmmoManager ammo;
 
     [Header("Shooting Settings")]
     [SerializeField, Min(0.01f)] private float fireRate = 0.12f; // Faster fire rate
@@ -27,6 +28,8 @@ public class PlayerShooting : MonoBehaviour
     [Header("Input")]
     [SerializeField] private string actionMapName = "Player";
     [SerializeField] private string attackActionName = "Attack";
+    [Tooltip("Tecla de recarga. El asset de input del proyecto no tiene accion 'Reload', asi que se lee el teclado directamente (mismo criterio que el WASD y el clic).")]
+    [SerializeField] private Key reloadKey = Key.R;
 
     private InputAction _attackAction;
     private bool _ownsAttackAction = false;
@@ -47,6 +50,9 @@ public class PlayerShooting : MonoBehaviour
 
         if (playerMotor == null)
             playerMotor = GetComponent<PlayerMotor>();
+
+        if (ammo == null)
+            ammo = GetComponent<AmmoManager>();
 
         // Find CameraShake on the camera
         if (playerCamera != null)
@@ -147,6 +153,8 @@ public class PlayerShooting : MonoBehaviour
 
     private void Update()
     {
+        HandleReloadInput();
+
         // Clic izquierdo: accion o lectura DIRECTA del raton. Mismo criterio que el
         // WASD en PlayerMotor (y que la camara, que ya lee Mouse.current.delta):
         // en este proyecto la lectura directa del dispositivo es la fiable.
@@ -170,9 +178,47 @@ public class PlayerShooting : MonoBehaviour
             TryFire();
     }
 
+    // R (configurable en el Inspector) para recargar.
+    private void HandleReloadInput()
+    {
+        if (ammo == null) return;
+
+        Keyboard kb = Keyboard.current;
+        if (kb == null) return;
+
+        var key = kb[reloadKey];
+        if (key != null && key.wasPressedThisFrame)
+            TryReload();
+    }
+
+    /// <summary>Recarga. Publico para poder llamarlo desde un boton de UI o un test.</summary>
+    public bool TryReload()
+    {
+        if (ammo == null) return false;
+
+        bool started = ammo.TryReload();
+        if (started)
+            Debug.Log("[PlayerShooting] Recargando... cargador " + ammo.Magazine + " / reserva " + ammo.Reserve);
+        else if (ammo.IsMagazineFull)
+            Debug.Log("[PlayerShooting] El cargador ya esta lleno.");
+        else if (ammo.Reserve <= 0)
+            Debug.Log("[PlayerShooting] No queda reserva para recargar.");
+
+        return started;
+    }
+
     private void TryFire()
     {
         if (Time.time < _nextFireTime)
+            return;
+
+        // Recargando no se dispara.
+        if (ammo != null && ammo.IsReloading)
+            return;
+
+        // Cada disparo VALIDO gasta exactamente una bala. Si no hay balas, no se
+        // genera trazadora, ni daño, ni sacudida de camara (el disparo no existe).
+        if (ammo != null && !ammo.TryConsumeRound())
             return;
 
         _nextFireTime = Time.time + fireRate;

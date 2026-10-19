@@ -19,6 +19,7 @@ public class PlayerHealth : MonoBehaviour
     [Header("Events")]
     public UnityEvent<int, int> OnHealthChanged; // current, max
     public UnityEvent OnDeath;
+    public UnityEvent OnDamaged;                 // daño REAL aplicado (no en i-frames): lo usa el HUD para el flash rojo
 
     private PlayerMotor _playerMotor;
     private CameraShake _cameraShake;
@@ -84,6 +85,7 @@ public class PlayerHealth : MonoBehaviour
 
         currentHealth = Mathf.Max(0, currentHealth - amount);
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
+        OnDamaged?.Invoke();
 
         // Trigger camera shake on damage
         _cameraShake?.ShakeForDamage();
@@ -95,14 +97,21 @@ public class PlayerHealth : MonoBehaviour
     }
 
     /// <summary>
-    /// Heal the player.
+    /// Cura al jugador. Devuelve cuanta vida se ha recuperado DE VERDAD (0 si ya
+    /// estaba al maximo): lo usan los objetos curativos para no gastarse en balde.
     /// </summary>
-    public void Heal(int amount)
+    public int Heal(int amount)
     {
-        if (_isDead) return;
+        if (_isDead) return 0;
+        if (amount <= 0) return 0;
 
+        int before = currentHealth;
         currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
+        int healed = currentHealth - before;
+        if (healed <= 0) return 0;
+
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
+        return healed;
     }
 
     private void Die()

@@ -4,8 +4,12 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// UI Manager simplificado - Solo Crosshair y Game Over
-/// Barra de vida REMOVIDA por petición del usuario.
+/// UI del juego: mira, paneles de fin de partida, barra de vida (abajo izquierda),
+/// contador de municion (abajo derecha) y flash rojo en los bordes al recibir daño.
+///
+/// Todo se crea por codigo si no esta asignado en el Inspector, y se alimenta de
+/// los sistemas REALES (PlayerHealth y AmmoManager): el HUD no guarda contadores
+/// propios, solo pinta lo que le llega por eventos.
 /// </summary>
 public class UIManager : MonoBehaviour
 {
@@ -18,21 +22,64 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text _levelCompleteText;
     [SerializeField] private string _restartHint = "Pulsa R o Enter para reiniciar";
 
+    [Header("HUD - Vida (inferior izquierda)")]
+    [SerializeField] private Image _healthBarBackground;
+    [SerializeField] private Image _healthBarFill;
+    [SerializeField] private Text _healthText;
+    [SerializeField] private Color _healthHighColor = new Color(0.25f, 0.9f, 0.3f);
+    [SerializeField] private Color _healthMidColor = new Color(0.95f, 0.8f, 0.2f);
+    [SerializeField] private Color _healthLowColor = new Color(0.95f, 0.2f, 0.15f);
+
+    [Header("HUD - Municion (inferior derecha)")]
+    [SerializeField] private Text _ammoText;
+    [SerializeField] private Color _ammoNormalColor = Color.white;
+    [SerializeField] private Color _ammoLowColor = new Color(1f, 0.3f, 0.25f);
+    [SerializeField] private Color _ammoEmptyColor = new Color(1f, 0.55f, 0.1f);
+    [SerializeField] private Color _ammoReloadingColor = new Color(1f, 0.85f, 0.3f);
+    [Tooltip("Por debajo de esta municion el contador se pone en rojo.")]
+    [SerializeField, Min(1)] private int _lowAmmoThreshold = 5;
+
+    [Header("HUD - Daño en pantalla")]
+    [SerializeField] private Image _damageVignette;
+    [SerializeField] private Color _damageColor = new Color(0.85f, 0f, 0f, 1f);
+    [SerializeField, Range(0f, 1f)] private float _damageFlashIntensity = 0.6f;
+    [SerializeField, Min(0.1f)] private float _damageFlashFadeSpeed = 2.5f;
+
     [Header("Crosshair Settings (Center - Small)")]
     [SerializeField] private Sprite _crosshairSprite;
     [SerializeField] private Color _crosshairColor = Color.white;
     [SerializeField] private float _crosshairSize = 24f;
 
     private PlayerHealth _playerHealth;
+    private AmmoManager _ammoManager;
     private bool _restartArmed = false;
+    private float _damageFlash = 0f;
+    private Sprite _whiteSprite;
 
     private void Awake()
     {
         SetupCanvas();
+        SetupDamageVignette();
         SetupCrosshair();
+        SetupHealthBar();
+        SetupAmmoCounter();
         SetupGameOverPanel();
         SetupLevelCompletePanel();
         FindPlayerHealth();
+    }
+
+    private void Start()
+    {
+        // Los eventos de Awake (PlayerHealth y AmmoManager avisan en su propio Awake)
+        // pueden haber pasado antes de que nos suscribieramos: aqui se pinta el
+        // estado inicial real, sin depender del orden de ejecucion.
+        if (_playerHealth != null)
+            UpdateHealthUI(_playerHealth.CurrentHealth, _playerHealth.MaxHealth);
+        else
+            UpdateHealthUI(100, 100);
+
+        if (_ammoManager != null)
+            UpdateAmmoUI(_ammoManager.Magazine, _ammoManager.Reserve);
     }
 
     private void SetupCanvas()
@@ -50,6 +97,10 @@ public class UIManager : MonoBehaviour
             _canvas.sortingOrder = 100;
             _canvas.pixelPerfect = false;
             canvasObj.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            var scaler = canvasObj.GetComponent<CanvasScaler>();
+            scaler.referenceResolution = new Vector2(1920f, 1080f);   // HUD estable en cualquier resolucion
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+            scaler.matchWidthOrHeight = 0.5f;
             canvasObj.AddComponent<GraphicRaycaster>();
             Debug.Log("[UIManager] Created independent Canvas");
         }
@@ -219,22 +270,36 @@ public class UIManager : MonoBehaviour
     private void FindPlayerHealth()
     {
         GameObject player = GameObject.FindWithTag("Player");
-        if (player != null)
+        if (player == null)
         {
-            _playerHealth = player.GetComponent<PlayerHealth>();
-            if (_playerHealth != null)
-            {
-                _playerHealth.OnDeath.AddListener(ShowGameOver);
-                Debug.Log("[UIManager] Connected to PlayerHealth for Game Over");
-            }
-            else
-            {
-                Debug.LogWarning("[UIManager] PlayerHealth not found on Player!");
-            }
+            Debug.LogWarning("[UIManager] Player not found!");
+            return;
+        }
+
+        _playerHealth = player.GetComponent<PlayerHealth>();
+        if (_playerHealth != null)
+        {
+            _playerHealth.OnDeath.AddListener(ShowGameOver);
+            _playerHealth.OnHealthChanged.AddListener(OnPlayerHealthChanged);
+            _playerHealth.OnDamaged.AddListener(OnPlayerDamaged);
+            Debug.Log("[UIManager] Connected to PlayerHealth (vida, daño y Game Over)");
         }
         else
         {
-            Debug.LogWarning("[UIManager] Player not found!");
+            Debug.LogWarning("[UIManager] PlayerHealth not found on Player!");
+        }
+
+        _ammoManager = player.GetComponent<AmmoManager>();
+        if (_ammoManager != null)
+        {
+            _ammoManager.OnAmmoChanged.AddListener(OnAmmoChanged);
+            _ammoManager.OnReloadStarted.AddListener(OnReloadStarted);
+            _ammoManager.OnReloadFinished.AddListener(OnReloadFinished);
+            Debug.Log("[UIManager] Connected to AmmoManager (municion y recarga)");
+        }
+        else
+        {
+            Debug.LogWarning("[UIManager] AmmoManager not found on Player!");
         }
     }
 
@@ -285,6 +350,9 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
+        // El flash de daño se anima siempre: tambien con el juego congelado (muerte).
+        UpdateDamageFlash();
+
         if (!_restartArmed) return;
 
         Keyboard kb = Keyboard.current;
@@ -346,11 +414,263 @@ public class UIManager : MonoBehaviour
         return hint;
     }
 
+    // ==================================================================
+    //  HUD: barra de vida, municion y flash de daño
+    // ==================================================================
+
+    private Sprite GetWhiteSprite()
+    {
+        if (_whiteSprite != null) return _whiteSprite;
+
+        Texture2D tex = new Texture2D(4, 4, TextureFormat.RGBA32, false);
+        Color[] pixels = new Color[16];
+        for (int i = 0; i < pixels.Length; i++) pixels[i] = Color.white;
+        tex.SetPixels(pixels);
+        tex.Apply();
+
+        _whiteSprite = Sprite.Create(tex, new Rect(0f, 0f, 4f, 4f), new Vector2(0.5f, 0.5f), 4f);
+        return _whiteSprite;
+    }
+
+    private void SetupHealthBar()
+    {
+        if (_healthBarBackground != null && _healthBarFill != null) return;   // ya asignada en el Inspector
+
+        GameObject container = new GameObject("HealthBar");
+        container.transform.SetParent(_canvas.transform, false);
+
+        RectTransform rect = container.AddComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0f, 0f);
+        rect.anchorMax = new Vector2(0f, 0f);
+        rect.pivot = new Vector2(0f, 0f);
+        rect.anchoredPosition = new Vector2(36f, 36f);
+        rect.sizeDelta = new Vector2(420f, 34f);
+
+        // Fondo de la barra.
+        GameObject bgObj = new GameObject("Background");
+        bgObj.transform.SetParent(container.transform, false);
+        _healthBarBackground = bgObj.AddComponent<Image>();
+        _healthBarBackground.sprite = GetWhiteSprite();
+        _healthBarBackground.color = new Color(0f, 0f, 0f, 0.65f);
+        _healthBarBackground.raycastTarget = false;
+        StretchToParent(_healthBarBackground.rectTransform, 0f);
+
+        // Relleno proporcional a la vida.
+        GameObject fillObj = new GameObject("Fill");
+        fillObj.transform.SetParent(container.transform, false);
+        _healthBarFill = fillObj.AddComponent<Image>();
+        _healthBarFill.sprite = GetWhiteSprite();
+        _healthBarFill.color = _healthHighColor;
+        _healthBarFill.type = Image.Type.Filled;
+        _healthBarFill.fillMethod = Image.FillMethod.Horizontal;
+        _healthBarFill.fillOrigin = (int)Image.OriginHorizontal.Left;
+        _healthBarFill.fillAmount = 1f;
+        _healthBarFill.raycastTarget = false;
+        StretchToParent(_healthBarFill.rectTransform, 4f);
+
+        // Indicador numerico.
+        GameObject textObj = new GameObject("HealthText");
+        textObj.transform.SetParent(_canvas.transform, false);
+        _healthText = textObj.AddComponent<Text>();
+        _healthText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        _healthText.fontSize = 26;
+        _healthText.fontStyle = FontStyle.Bold;
+        _healthText.color = Color.white;
+        _healthText.alignment = TextAnchor.LowerLeft;
+        _healthText.text = "100 / 100";
+        _healthText.raycastTarget = false;
+
+        RectTransform textRect = _healthText.rectTransform;
+        textRect.anchorMin = new Vector2(0f, 0f);
+        textRect.anchorMax = new Vector2(0f, 0f);
+        textRect.pivot = new Vector2(0f, 0f);
+        textRect.anchoredPosition = new Vector2(36f, 76f);
+        textRect.sizeDelta = new Vector2(420f, 34f);
+
+        Debug.Log("[UIManager] Barra de vida creada (inferior izquierda)");
+    }
+
+    private void SetupAmmoCounter()
+    {
+        if (_ammoText != null) return;
+
+        GameObject textObj = new GameObject("AmmoText");
+        textObj.transform.SetParent(_canvas.transform, false);
+
+        _ammoText = textObj.AddComponent<Text>();
+        _ammoText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        _ammoText.fontSize = 32;
+        _ammoText.fontStyle = FontStyle.Bold;
+        _ammoText.color = _ammoNormalColor;
+        _ammoText.alignment = TextAnchor.LowerRight;
+        _ammoText.text = "BALAS: 30 / 90";
+        _ammoText.raycastTarget = false;
+
+        RectTransform rect = _ammoText.rectTransform;
+        rect.anchorMin = new Vector2(1f, 0f);
+        rect.anchorMax = new Vector2(1f, 0f);
+        rect.pivot = new Vector2(1f, 0f);
+        rect.anchoredPosition = new Vector2(-36f, 36f);
+        rect.sizeDelta = new Vector2(600f, 44f);
+
+        Debug.Log("[UIManager] Contador de municion creado (inferior derecha)");
+    }
+
+    // Vignette: sprite generado (transparente en el centro, opaco en los bordes).
+    private void SetupDamageVignette()
+    {
+        if (_damageVignette != null) return;
+
+        GameObject obj = new GameObject("DamageVignette");
+        obj.transform.SetParent(_canvas.transform, false);
+
+        _damageVignette = obj.AddComponent<Image>();
+        _damageVignette.sprite = CreateVignetteSprite();
+        _damageVignette.color = new Color(_damageColor.r, _damageColor.g, _damageColor.b, 0f);
+        _damageVignette.raycastTarget = false;
+        StretchToParent(_damageVignette.rectTransform, 0f);
+
+        // Detras del resto del HUD (el canvas pinta por orden de hermanos).
+        _damageVignette.transform.SetAsFirstSibling();
+
+        Debug.Log("[UIManager] Efecto de daño creado (vineta roja)");
+    }
+
+    private Sprite CreateVignetteSprite(int size = 256)
+    {
+        Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        tex.wrapMode = TextureWrapMode.Clamp;
+        tex.filterMode = FilterMode.Bilinear;
+
+        Vector2 center = new Vector2(size * 0.5f, size * 0.5f);
+        float maxDistance = size * 0.5f;
+
+        Color[] pixels = new Color[size * size];
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float d = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), center) / maxDistance;
+                float alpha = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.55f, 1f, d));
+                pixels[y * size + x] = new Color(1f, 1f, 1f, alpha);
+            }
+        }
+
+        tex.SetPixels(pixels);
+        tex.Apply();
+
+        return Sprite.Create(tex, new Rect(0f, 0f, size, size), new Vector2(0.5f, 0.5f), 100f);
+    }
+
+    private static void StretchToParent(RectTransform rect, float padding)
+    {
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.offsetMin = new Vector2(padding, padding);
+        rect.offsetMax = new Vector2(-padding, -padding);
+    }
+
+    // ---------- Vida ----------
+    private void OnPlayerHealthChanged(int current, int max)
+    {
+        UpdateHealthUI(current, max);
+    }
+
+    private void UpdateHealthUI(int current, int max)
+    {
+        float ratio = max <= 0 ? 0f : Mathf.Clamp01((float)current / max);
+
+        if (_healthBarFill != null)
+        {
+            _healthBarFill.fillAmount = ratio;
+            _healthBarFill.color = ratio > 0.5f ? _healthHighColor
+                                 : ratio > 0.25f ? _healthMidColor
+                                 : _healthLowColor;
+        }
+
+        if (_healthText != null)
+            _healthText.text = current + " / " + max;
+    }
+
+    // ---------- Municion ----------
+    private void OnAmmoChanged(int magazine, int reserve)
+    {
+        UpdateAmmoUI(magazine, reserve);
+    }
+
+    private void OnReloadStarted()
+    {
+        if (_ammoManager != null) UpdateAmmoUI(_ammoManager.Magazine, _ammoManager.Reserve);
+    }
+
+    private void OnReloadFinished()
+    {
+        if (_ammoManager != null) UpdateAmmoUI(_ammoManager.Magazine, _ammoManager.Reserve);
+    }
+
+    private void UpdateAmmoUI(int magazine, int reserve)
+    {
+        if (_ammoText == null) return;
+
+        bool reloading = _ammoManager != null && _ammoManager.IsReloading;
+
+        string text = "BALAS: " + magazine + " / " + reserve;
+        Color color = _ammoNormalColor;
+
+        if (reloading)
+        {
+            text += "   RECARGANDO...";
+            color = _ammoReloadingColor;
+        }
+        else if (magazine <= 0)
+        {
+            // Cargador vacio: bien visible.
+            text += reserve > 0 ? "   SIN BALAS - PULSA R" : "   SIN MUNICION";
+            color = _ammoEmptyColor;
+        }
+        else if (magazine < _lowAmmoThreshold)
+        {
+            color = _ammoLowColor;
+        }
+
+        _ammoText.text = text;
+        _ammoText.color = color;
+    }
+
+    // ---------- Daño en pantalla ----------
+    private void OnPlayerDamaged()
+    {
+        // Impactos sucesivos: se reinicia al maximo (no se acumula ni parpadea raro).
+        _damageFlash = 1f;
+    }
+
+    private void UpdateDamageFlash()
+    {
+        if (_damageVignette == null) return;
+
+        if (_damageFlash > 0f)
+            _damageFlash = Mathf.Max(0f, _damageFlash - Time.unscaledDeltaTime * _damageFlashFadeSpeed);
+
+        Color color = _damageColor;
+        color.a = _damageFlashIntensity * _damageFlash;
+        _damageVignette.color = color;
+    }
+
     private void OnDestroy()
     {
         if (_playerHealth != null)
         {
             _playerHealth.OnDeath.RemoveListener(ShowGameOver);
+            _playerHealth.OnHealthChanged.RemoveListener(OnPlayerHealthChanged);
+            _playerHealth.OnDamaged.RemoveListener(OnPlayerDamaged);
+        }
+
+        if (_ammoManager != null)
+        {
+            _ammoManager.OnAmmoChanged.RemoveListener(OnAmmoChanged);
+            _ammoManager.OnReloadStarted.RemoveListener(OnReloadStarted);
+            _ammoManager.OnReloadFinished.RemoveListener(OnReloadFinished);
         }
     }
 }
