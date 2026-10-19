@@ -1,0 +1,741 @@
+[gd_scene load_steps=108 format=3]
+
+[ext_resource type="Texture2D" path="res://textures/metal_diamond_plate/metal_diamond_plate_albedo.png" id="1_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_diamond_plate/metal_diamond_plate_roughness.png" id="2_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_diamond_plate/metal_diamond_plate_normal_gl.png" id="3_r"]
+
+[ext_resource type="Texture2D" path="res://textures/grate_floor_bars/grate_floor_bars_albedo.png" id="4_r"]
+
+[ext_resource type="Texture2D" path="res://textures/grate_floor_bars/grate_floor_bars_roughness.png" id="5_r"]
+
+[ext_resource type="Texture2D" path="res://textures/grate_floor_bars/grate_floor_bars_normal_gl.png" id="6_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_rust_heavy/metal_rust_heavy_albedo.png" id="7_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_rust_heavy/metal_rust_heavy_roughness.png" id="8_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_rust_heavy/metal_rust_heavy_normal_gl.png" id="9_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_rivet_plates/metal_rivet_plates_albedo.png" id="10_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_rivet_plates/metal_rivet_plates_roughness.png" id="11_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_rivet_plates/metal_rivet_plates_normal_gl.png" id="12_r"]
+
+[ext_resource type="Texture2D" path="res://textures/pipe_rusty_strip/pipe_rusty_strip_albedo.png" id="13_r"]
+
+[ext_resource type="Texture2D" path="res://textures/pipe_rusty_strip/pipe_rusty_strip_roughness.png" id="14_r"]
+
+[ext_resource type="Texture2D" path="res://textures/pipe_rusty_strip/pipe_rusty_strip_normal_gl.png" id="15_r"]
+
+[ext_resource type="Texture2D" path="res://textures/cables_bundle_strip/cables_bundle_strip_albedo.png" id="16_r"]
+
+[ext_resource type="Texture2D" path="res://textures/cables_bundle_strip/cables_bundle_strip_roughness.png" id="17_r"]
+
+[ext_resource type="Texture2D" path="res://textures/cables_bundle_strip/cables_bundle_strip_normal_gl.png" id="18_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_painted_rust_blue/metal_painted_rust_blue_albedo.png" id="19_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_painted_rust_blue/metal_painted_rust_blue_roughness.png" id="20_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_painted_rust_blue/metal_painted_rust_blue_normal_gl.png" id="21_r"]
+
+[ext_resource type="Texture2D" path="res://textures/pipes_painted_vertical/pipes_painted_vertical_albedo.png" id="22_r"]
+
+[ext_resource type="Texture2D" path="res://textures/pipes_painted_vertical/pipes_painted_vertical_roughness.png" id="23_r"]
+
+[ext_resource type="Texture2D" path="res://textures/pipes_painted_vertical/pipes_painted_vertical_normal_gl.png" id="24_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_corrugated_rust/metal_corrugated_rust_albedo.png" id="25_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_corrugated_rust/metal_corrugated_rust_roughness.png" id="26_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_corrugated_rust/metal_corrugated_rust_normal_gl.png" id="27_r"]
+
+[ext_resource type="Texture2D" path="res://textures/pipes_wall_steel/pipes_wall_steel_albedo.png" id="28_r"]
+
+[ext_resource type="Texture2D" path="res://textures/pipes_wall_steel/pipes_wall_steel_roughness.png" id="29_r"]
+
+[ext_resource type="Texture2D" path="res://textures/pipes_wall_steel/pipes_wall_steel_normal_gl.png" id="30_r"]
+
+[ext_resource type="Texture2D" path="res://textures/grate_vent_slats/grate_vent_slats_albedo.png" id="31_r"]
+
+[ext_resource type="Texture2D" path="res://textures/grate_vent_slats/grate_vent_slats_roughness.png" id="32_r"]
+
+[ext_resource type="Texture2D" path="res://textures/grate_vent_slats/grate_vent_slats_normal_gl.png" id="33_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_brushed_panels/metal_brushed_panels_albedo.png" id="34_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_brushed_panels/metal_brushed_panels_roughness.png" id="35_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_brushed_panels/metal_brushed_panels_normal_gl.png" id="36_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_brushed_dark/metal_brushed_dark_albedo.png" id="37_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_brushed_dark/metal_brushed_dark_roughness.png" id="38_r"]
+
+[ext_resource type="Texture2D" path="res://textures/metal_brushed_dark/metal_brushed_dark_normal_gl.png" id="39_r"]
+
+[ext_resource type="Texture2D" path="res://textures/grate_mesh_expanded/grate_mesh_expanded_albedo.png" id="40_r"]
+
+[ext_resource type="Texture2D" path="res://textures/grate_mesh_expanded/grate_mesh_expanded_roughness.png" id="41_r"]
+
+[ext_resource type="Texture2D" path="res://textures/grate_mesh_expanded/grate_mesh_expanded_normal_gl.png" id="42_r"]
+
+[ext_resource type="Texture2D" path="res://textures/cable_tray/cable_tray_albedo.png" id="43_r"]
+
+[ext_resource type="Texture2D" path="res://textures/cable_tray/cable_tray_roughness.png" id="44_r"]
+
+[ext_resource type="Texture2D" path="res://textures/cable_tray/cable_tray_normal_gl.png" id="45_r"]
+
+[ext_resource type="Texture2D" path="res://textures/pipe_copper_strip/pipe_copper_strip_albedo.png" id="46_r"]
+
+[ext_resource type="Texture2D" path="res://textures/pipe_copper_strip/pipe_copper_strip_roughness.png" id="47_r"]
+
+[ext_resource type="Texture2D" path="res://textures/pipe_copper_strip/pipe_copper_strip_normal_gl.png" id="48_r"]
+
+[ext_resource type="Texture2D" path="res://textures/pipe_corrugated_strip/pipe_corrugated_strip_albedo.png" id="49_r"]
+
+[ext_resource type="Texture2D" path="res://textures/pipe_corrugated_strip/pipe_corrugated_strip_roughness.png" id="50_r"]
+
+[ext_resource type="Texture2D" path="res://textures/pipe_corrugated_strip/pipe_corrugated_strip_normal_gl.png" id="51_r"]
+
+[ext_resource type="Texture2D" path="res://textures/cable_braided_strip/cable_braided_strip_albedo.png" id="52_r"]
+
+[ext_resource type="Texture2D" path="res://textures/cable_braided_strip/cable_braided_strip_roughness.png" id="53_r"]
+
+[ext_resource type="Texture2D" path="res://textures/cable_braided_strip/cable_braided_strip_normal_gl.png" id="54_r"]
+
+[ext_resource type="Material" path="res://materials/decals/decal_oil_stain.tres" id="55_r"]
+
+[ext_resource type="Material" path="res://materials/decals/decal_puddle.tres" id="56_r"]
+
+[ext_resource type="Material" path="res://materials/decals/decal_debris.tres" id="57_r"]
+
+[ext_resource type="Material" path="res://materials/decals/decal_scorch.tres" id="58_r"]
+
+[ext_resource type="Material" path="res://materials/decals/decal_hazard_stripes.tres" id="59_r"]
+
+[ext_resource type="Material" path="res://materials/decals/decal_rust_leak.tres" id="60_r"]
+
+[ext_resource type="Material" path="res://materials/decals/decal_crack.tres" id="61_r"]
+
+[ext_resource type="Material" path="res://materials/decals/decal_grime.tres" id="62_r"]
+
+[ext_resource type="Script" path="res://scripts/shot.gd" id="63_r"]
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 1
+background_color = Color(0.02, 0.022, 0.026, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.55, 0.6, 0.7, 1)
+ambient_light_energy = 0.35
+tonemap_mode = 2
+fog_enabled = true
+fog_light_color = Color(0.05, 0.055, 0.06, 1)
+fog_density = 0.035
+
+[sub_resource type="QuadMesh" id="QuadMesh_2"]
+size = Vector2(4, 8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3"]
+albedo_texture = ExtResource("1_r")
+metallic = 0.45
+roughness_texture = ExtResource("2_r")
+normal_enabled = true
+normal_texture = ExtResource("3_r")
+uv1_scale = Vector3(4, 8, 1)
+texture_filter = 0
+
+[sub_resource type="QuadMesh" id="QuadMesh_4"]
+size = Vector2(4, 4)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+cull_mode = 2
+albedo_texture = ExtResource("4_r")
+metallic = 0.3
+roughness_texture = ExtResource("5_r")
+normal_enabled = true
+normal_texture = ExtResource("6_r")
+uv1_scale = Vector3(4, 4, 1)
+texture_filter = 0
+
+[sub_resource type="QuadMesh" id="QuadMesh_6"]
+size = Vector2(4, 12)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7"]
+albedo_texture = ExtResource("1_r")
+metallic = 0.45
+roughness_texture = ExtResource("2_r")
+normal_enabled = true
+normal_texture = ExtResource("3_r")
+uv1_scale = Vector3(4, 12, 1)
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8"]
+albedo_texture = ExtResource("7_r")
+metallic = 0
+roughness_texture = ExtResource("8_r")
+normal_enabled = true
+normal_texture = ExtResource("9_r")
+uv1_scale = Vector3(4, 4, 1)
+texture_filter = 0
+
+[sub_resource type="QuadMesh" id="QuadMesh_9"]
+size = Vector2(4, 1.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_10"]
+albedo_texture = ExtResource("10_r")
+metallic = 0
+roughness_texture = ExtResource("11_r")
+normal_enabled = true
+normal_texture = ExtResource("12_r")
+uv1_scale = Vector3(4, 1.2, 1)
+texture_filter = 0
+
+[sub_resource type="QuadMesh" id="QuadMesh_11"]
+size = Vector2(4, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_12"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+cull_mode = 2
+albedo_texture = ExtResource("13_r")
+metallic = 0
+roughness_texture = ExtResource("14_r")
+normal_enabled = true
+normal_texture = ExtResource("15_r")
+uv1_scale = Vector3(4, 1, 1)
+texture_filter = 0
+
+[sub_resource type="QuadMesh" id="QuadMesh_13"]
+size = Vector2(4, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_14"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+cull_mode = 2
+albedo_texture = ExtResource("16_r")
+metallic = 0
+roughness_texture = ExtResource("17_r")
+normal_enabled = true
+normal_texture = ExtResource("18_r")
+uv1_scale = Vector3(8, 1, 1)
+texture_filter = 0
+
+[sub_resource type="QuadMesh" id="QuadMesh_15"]
+size = Vector2(4, 3)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_16"]
+albedo_texture = ExtResource("19_r")
+metallic = 0
+roughness_texture = ExtResource("20_r")
+normal_enabled = true
+normal_texture = ExtResource("21_r")
+uv1_scale = Vector3(4, 3, 1)
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_17"]
+albedo_texture = ExtResource("22_r")
+metallic = 0
+roughness_texture = ExtResource("23_r")
+normal_enabled = true
+normal_texture = ExtResource("24_r")
+uv1_scale = Vector3(4, 3, 1)
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_18"]
+albedo_texture = ExtResource("25_r")
+metallic = 0.25
+roughness_texture = ExtResource("26_r")
+normal_enabled = true
+normal_texture = ExtResource("27_r")
+uv1_scale = Vector3(4, 3, 1)
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_19"]
+albedo_texture = ExtResource("10_r")
+metallic = 0
+roughness_texture = ExtResource("11_r")
+normal_enabled = true
+normal_texture = ExtResource("12_r")
+uv1_scale = Vector3(4, 3, 1)
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_20"]
+albedo_texture = ExtResource("7_r")
+metallic = 0
+roughness_texture = ExtResource("8_r")
+normal_enabled = true
+normal_texture = ExtResource("9_r")
+uv1_scale = Vector3(4, 3, 1)
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_21"]
+albedo_texture = ExtResource("28_r")
+metallic = 0
+roughness_texture = ExtResource("29_r")
+normal_enabled = true
+normal_texture = ExtResource("30_r")
+uv1_scale = Vector3(4, 3, 1)
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_22"]
+albedo_texture = ExtResource("31_r")
+metallic = 0
+roughness_texture = ExtResource("32_r")
+normal_enabled = true
+normal_texture = ExtResource("33_r")
+uv1_scale = Vector3(4, 3, 1)
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_23"]
+albedo_texture = ExtResource("34_r")
+metallic = 0.5
+roughness_texture = ExtResource("35_r")
+normal_enabled = true
+normal_texture = ExtResource("36_r")
+uv1_scale = Vector3(4, 3, 1)
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_24"]
+albedo_texture = ExtResource("37_r")
+metallic = 0.5
+roughness_texture = ExtResource("38_r")
+normal_enabled = true
+normal_texture = ExtResource("39_r")
+uv1_scale = Vector3(4, 3, 1)
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_25"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+cull_mode = 2
+albedo_texture = ExtResource("40_r")
+metallic = 0
+roughness_texture = ExtResource("41_r")
+normal_enabled = true
+normal_texture = ExtResource("42_r")
+uv1_scale = Vector3(4, 3, 1)
+texture_filter = 0
+
+[sub_resource type="QuadMesh" id="QuadMesh_26"]
+size = Vector2(4, 24)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_27"]
+albedo_texture = ExtResource("37_r")
+metallic = 0.5
+roughness_texture = ExtResource("38_r")
+normal_enabled = true
+normal_texture = ExtResource("39_r")
+uv1_scale = Vector3(4, 24, 1)
+texture_filter = 0
+
+[sub_resource type="QuadMesh" id="QuadMesh_28"]
+size = Vector2(24, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_29"]
+albedo_texture = ExtResource("43_r")
+metallic = 0.35
+roughness_texture = ExtResource("44_r")
+normal_enabled = true
+normal_texture = ExtResource("45_r")
+uv1_scale = Vector3(24, 1, 1)
+texture_filter = 0
+
+[sub_resource type="QuadMesh" id="QuadMesh_30"]
+size = Vector2(24, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_31"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+cull_mode = 2
+albedo_texture = ExtResource("46_r")
+metallic = 0.45
+roughness_texture = ExtResource("47_r")
+normal_enabled = true
+normal_texture = ExtResource("48_r")
+uv1_scale = Vector3(48, 1, 1)
+texture_filter = 0
+
+[sub_resource type="QuadMesh" id="QuadMesh_32"]
+size = Vector2(24, 0.6)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_33"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+cull_mode = 2
+albedo_texture = ExtResource("49_r")
+metallic = 0
+roughness_texture = ExtResource("50_r")
+normal_enabled = true
+normal_texture = ExtResource("51_r")
+uv1_scale = Vector3(40, 1, 1)
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_34"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+cull_mode = 2
+albedo_texture = ExtResource("16_r")
+metallic = 0
+roughness_texture = ExtResource("17_r")
+normal_enabled = true
+normal_texture = ExtResource("18_r")
+uv1_scale = Vector3(48, 1, 1)
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_35"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+cull_mode = 2
+albedo_texture = ExtResource("52_r")
+metallic = 0
+roughness_texture = ExtResource("53_r")
+normal_enabled = true
+normal_texture = ExtResource("54_r")
+uv1_scale = Vector3(48, 1, 1)
+texture_filter = 0
+
+[sub_resource type="QuadMesh" id="QuadMesh_36"]
+size = Vector2(1.6, 1.6)
+
+[sub_resource type="QuadMesh" id="QuadMesh_37"]
+size = Vector2(2, 2)
+
+[sub_resource type="QuadMesh" id="QuadMesh_38"]
+size = Vector2(1.2, 1.2)
+
+[sub_resource type="QuadMesh" id="QuadMesh_39"]
+size = Vector2(1.8, 1.8)
+
+[sub_resource type="QuadMesh" id="QuadMesh_40"]
+size = Vector2(1.4, 1.4)
+
+[sub_resource type="QuadMesh" id="QuadMesh_41"]
+size = Vector2(1.3, 1.3)
+
+[sub_resource type="QuadMesh" id="QuadMesh_42"]
+size = Vector2(2.2, 2.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_43"]
+albedo_color = Color(1, 0.9, 0.7, 1)
+emission_enabled = true
+emission = Color(1, 0.85, 0.6, 1)
+emission_energy_multiplier = 2.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_44"]
+size = Vector3(0.6, 0.06, 0.25)
+
+[node name="Corridor" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="Geometry" type="Node3D" parent="."]
+
+[node name="FloorA" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, -4)
+mesh = SubResource("QuadMesh_2")
+surface_material_override/0 = SubResource("StandardMaterial3D_3")
+
+[node name="FloorGrate" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, -10)
+mesh = SubResource("QuadMesh_4")
+surface_material_override/0 = SubResource("StandardMaterial3D_5")
+
+[node name="FloorC" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, -18)
+mesh = SubResource("QuadMesh_6")
+surface_material_override/0 = SubResource("StandardMaterial3D_7")
+
+[node name="PitFloor" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, -1.2, -10)
+mesh = SubResource("QuadMesh_4")
+surface_material_override/0 = SubResource("StandardMaterial3D_8")
+
+[node name="PitWallN" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, -0.6, -8)
+mesh = SubResource("QuadMesh_9")
+surface_material_override/0 = SubResource("StandardMaterial3D_10")
+
+[node name="PitWallS" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6, -12)
+mesh = SubResource("QuadMesh_9")
+surface_material_override/0 = SubResource("StandardMaterial3D_10")
+
+[node name="PitWallW" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -2, -0.6, -10)
+mesh = SubResource("QuadMesh_9")
+surface_material_override/0 = SubResource("StandardMaterial3D_10")
+
+[node name="PitWallE" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 2, -0.6, -10)
+mesh = SubResource("QuadMesh_9")
+surface_material_override/0 = SubResource("StandardMaterial3D_10")
+
+[node name="PitPipe" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.75, -11.6)
+mesh = SubResource("QuadMesh_11")
+surface_material_override/0 = SubResource("StandardMaterial3D_12")
+
+[node name="PitCables" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, -1, -8.2)
+mesh = SubResource("QuadMesh_13")
+surface_material_override/0 = SubResource("StandardMaterial3D_14")
+
+[node name="WallL0" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -2, 1.5, -2)
+mesh = SubResource("QuadMesh_15")
+surface_material_override/0 = SubResource("StandardMaterial3D_16")
+
+[node name="WallL1" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -2, 1.5, -6)
+mesh = SubResource("QuadMesh_15")
+surface_material_override/0 = SubResource("StandardMaterial3D_17")
+
+[node name="WallL2" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -2, 1.5, -10)
+mesh = SubResource("QuadMesh_15")
+surface_material_override/0 = SubResource("StandardMaterial3D_18")
+
+[node name="WallL3" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -2, 1.5, -14)
+mesh = SubResource("QuadMesh_15")
+surface_material_override/0 = SubResource("StandardMaterial3D_19")
+
+[node name="WallL4" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -2, 1.5, -18)
+mesh = SubResource("QuadMesh_15")
+surface_material_override/0 = SubResource("StandardMaterial3D_16")
+
+[node name="WallL5" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -2, 1.5, -22)
+mesh = SubResource("QuadMesh_15")
+surface_material_override/0 = SubResource("StandardMaterial3D_20")
+
+[node name="WallR0" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 2, 1.5, -2)
+mesh = SubResource("QuadMesh_15")
+surface_material_override/0 = SubResource("StandardMaterial3D_21")
+
+[node name="WallR1" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 2, 1.5, -6)
+mesh = SubResource("QuadMesh_15")
+surface_material_override/0 = SubResource("StandardMaterial3D_22")
+
+[node name="WallR2" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 2, 1.5, -10)
+mesh = SubResource("QuadMesh_15")
+surface_material_override/0 = SubResource("StandardMaterial3D_18")
+
+[node name="WallR3" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 2, 1.5, -14)
+mesh = SubResource("QuadMesh_15")
+surface_material_override/0 = SubResource("StandardMaterial3D_23")
+
+[node name="WallR4" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 2, 1.5, -18)
+mesh = SubResource("QuadMesh_15")
+surface_material_override/0 = SubResource("StandardMaterial3D_21")
+
+[node name="WallR5" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 2, 1.5, -22)
+mesh = SubResource("QuadMesh_15")
+surface_material_override/0 = SubResource("StandardMaterial3D_24")
+
+[node name="EndWall" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -24)
+mesh = SubResource("QuadMesh_15")
+surface_material_override/0 = SubResource("StandardMaterial3D_16")
+
+[node name="EndMesh" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -22.8)
+mesh = SubResource("QuadMesh_15")
+surface_material_override/0 = SubResource("StandardMaterial3D_25")
+
+[node name="BackWall" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 1.5, 0)
+mesh = SubResource("QuadMesh_15")
+surface_material_override/0 = SubResource("StandardMaterial3D_19")
+
+[node name="Ceiling" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 3, -12)
+mesh = SubResource("QuadMesh_26")
+surface_material_override/0 = SubResource("StandardMaterial3D_27")
+
+[node name="CableTray" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, -1, 0, 0, 0, -1, 1, 0, 0, 0.9, 2.95, -12)
+mesh = SubResource("QuadMesh_28")
+surface_material_override/0 = SubResource("StandardMaterial3D_29")
+
+[node name="StripCopperL" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -1.88, 2.55, -12)
+mesh = SubResource("QuadMesh_30")
+surface_material_override/0 = SubResource("StandardMaterial3D_31")
+
+[node name="StripCorrL" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -1.85, 0.35, -12)
+mesh = SubResource("QuadMesh_32")
+surface_material_override/0 = SubResource("StandardMaterial3D_33")
+
+[node name="StripCablesR" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 1.9, 2.6, -12)
+mesh = SubResource("QuadMesh_30")
+surface_material_override/0 = SubResource("StandardMaterial3D_34")
+
+[node name="StripBraidR" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 1.88, 0.3, -12)
+mesh = SubResource("QuadMesh_30")
+surface_material_override/0 = SubResource("StandardMaterial3D_35")
+
+[node name="Decals" type="Node3D" parent="."]
+
+[node name="OilStain" type="MeshInstance3D" parent="Decals"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, -0.4, 0.012, -3.5)
+mesh = SubResource("QuadMesh_36")
+surface_material_override/0 = ExtResource("55_r")
+
+[node name="Puddle" type="MeshInstance3D" parent="Decals"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0.6, 0.012, -15)
+mesh = SubResource("QuadMesh_37")
+surface_material_override/0 = ExtResource("56_r")
+
+[node name="Debris" type="MeshInstance3D" parent="Decals"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, -1.2, 0.014, -6.5)
+mesh = SubResource("QuadMesh_38")
+surface_material_override/0 = ExtResource("57_r")
+
+[node name="Scorch" type="MeshInstance3D" parent="Decals"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0.3, 0.013, -19.5)
+mesh = SubResource("QuadMesh_39")
+surface_material_override/0 = ExtResource("58_r")
+
+[node name="Hazard" type="MeshInstance3D" parent="Decals"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0.015, -7.4)
+mesh = SubResource("QuadMesh_11")
+surface_material_override/0 = ExtResource("59_r")
+
+[node name="Hazard2" type="MeshInstance3D" parent="Decals"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0.015, -12.6)
+mesh = SubResource("QuadMesh_11")
+surface_material_override/0 = ExtResource("59_r")
+
+[node name="RustLeak" type="MeshInstance3D" parent="Decals"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -1.985, 1.6, -1.6)
+mesh = SubResource("QuadMesh_38")
+surface_material_override/0 = ExtResource("60_r")
+
+[node name="RustLeak2" type="MeshInstance3D" parent="Decals"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 1.985, 1.3, -14.3)
+mesh = SubResource("QuadMesh_40")
+surface_material_override/0 = ExtResource("60_r")
+
+[node name="Crack" type="MeshInstance3D" parent="Decals"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -1.985, 1.2, -10.5)
+mesh = SubResource("QuadMesh_41")
+surface_material_override/0 = ExtResource("61_r")
+
+[node name="Grime" type="MeshInstance3D" parent="Decals"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 1.985, 0.8, -5)
+mesh = SubResource("QuadMesh_37")
+surface_material_override/0 = ExtResource("62_r")
+
+[node name="Grime2" type="MeshInstance3D" parent="Decals"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -1.985, 0.9, -17)
+mesh = SubResource("QuadMesh_42")
+surface_material_override/0 = ExtResource("62_r")
+
+[node name="Lights" type="Node3D" parent="."]
+
+[node name="Lamp0" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 2.75, -3)
+light_color = Color(1, 0.82, 0.6, 1)
+light_energy = 1.3
+omni_range = 7.5
+omni_attenuation = 1.2
+shadow_enabled = true
+
+[node name="Fixture0" type="MeshInstance3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 2.95, -3)
+mesh = SubResource("BoxMesh_44")
+surface_material_override/0 = SubResource("StandardMaterial3D_43")
+
+[node name="Lamp1" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 2.75, -9)
+light_color = Color(0.75, 0.85, 1, 1)
+light_energy = 1.3
+omni_range = 7.5
+omni_attenuation = 1.2
+shadow_enabled = true
+
+[node name="Fixture1" type="MeshInstance3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 2.95, -9)
+mesh = SubResource("BoxMesh_44")
+surface_material_override/0 = SubResource("StandardMaterial3D_43")
+
+[node name="Lamp2" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 2.75, -15)
+light_color = Color(1, 0.82, 0.6, 1)
+light_energy = 1.3
+omni_range = 7.5
+omni_attenuation = 1.2
+shadow_enabled = false
+
+[node name="Fixture2" type="MeshInstance3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 2.95, -15)
+mesh = SubResource("BoxMesh_44")
+surface_material_override/0 = SubResource("StandardMaterial3D_43")
+
+[node name="Lamp3" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 2.75, -21)
+light_color = Color(1, 0.45, 0.3, 1)
+light_energy = 1.3
+omni_range = 7.5
+omni_attenuation = 1.2
+shadow_enabled = false
+
+[node name="Fixture3" type="MeshInstance3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 2.95, -21)
+mesh = SubResource("BoxMesh_44")
+surface_material_override/0 = SubResource("StandardMaterial3D_43")
+
+[node name="PitLight" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6, -10)
+light_color = Color(0.4, 0.7, 1, 1)
+light_energy = 1.2
+omni_range = 3
+
+[node name="Cameras" type="Node3D" parent="."]
+
+[node name="CamWide" type="Camera3D" parent="Cameras"]
+transform = Transform3D(0.997564, -0.003651, 0.069661, 0, 0.99863, 0.052336, -0.069756, -0.052208, 0.996197, 0.25, 1.6, -0.6)
+fov = 70
+current = true
+
+[node name="CamWall" type="Camera3D" parent="Cameras"]
+transform = Transform3D(0.469472, 0.061591, -0.880797, 0, 0.997564, 0.069756, 0.882948, -0.032749, 0.468328, -0.4, 1.55, -12)
+fov = 62
+
+[node name="CamPit" type="Camera3D" parent="Cameras"]
+transform = Transform3D(1, 0, 0, 0, 0.743145, 0.669131, 0, -0.669131, 0.743145, 0, 1.7, -6)
+fov = 65
+
+[node name="CamRight" type="Camera3D" parent="Cameras"]
+transform = Transform3D(0.642788, -0.066765, 0.763129, 0, 0.996195, 0.087156, -0.766044, -0.056023, 0.640342, 1.3, 1.45, -2.6)
+fov = 62
+
+[node name="CamLeftWall" type="Camera3D" parent="Cameras"]
+transform = Transform3D(0, -0.052336, 0.99863, 0, 0.99863, 0.052336, -1, 0, 0, 1.2, 1.5, -18)
+fov = 70
+
+[node name="CamRightWall" type="Camera3D" parent="Cameras"]
+transform = Transform3D(0, 0.052336, -0.99863, 0, 0.99863, 0.052336, 1, 0, 0, -1.2, 1.5, -10)
+fov = 70
+
+[node name="Shot" type="Node" parent="."]
+script = ExtResource("63_r")

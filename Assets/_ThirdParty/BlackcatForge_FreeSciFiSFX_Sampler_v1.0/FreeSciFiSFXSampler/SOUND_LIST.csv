@@ -1,0 +1,21 @@
+pack,file,seconds,channels,seamless_loop,description
+Deep Space Ambience & Drones,DSA_Derelict_HullCreaks_Loop,72.00,stereo,yes,seamless 72 s loop: a dead ship groaning and creaking around you
+Deep Space Ambience & Drones,DSA_Stinger_SignalDetected,5.00,stereo,no,stinger: an unknown signal comes in
+Deep Space Ambience & Drones,DSA_Stinger_AlienPresence,8.00,stereo,no,stinger: something else is aboard
+Deep Space Ambience & Drones,DSA_Stinger_DistantExplosion,8.00,stereo,no,stinger: a far-off blast rolls through the hull
+Deep Space Ambience & Drones,DSA_Stinger_WarpArrival,7.00,stereo,no,stinger: dropping out of warp
+Droid Voices,DV_Pip_Curious_01,1.27,mono,no,Pip (cute and chirpy): curious
+Droid Voices,DV_Bloop_Happy_01,1.06,mono,no,Bloop (cute and chirpy): happy
+Droid Voices,DV_Astra_Curious_01,1.50,mono,no,Astra (helper): curious
+Droid Voices,DV_Tonka_Angry_01,1.43,mono,no,Tonka (gruff and heavy): angry
+Droid Voices,DV_Sentinel_Alarmed_02,0.95,mono,no,Sentinel (menacing): alarmed
+Sci-Fi Weapons & Impacts,SWI_Blaster_Pistol_01,0.54,mono,no,blaster pistol shot
+Sci-Fi Weapons & Impacts,SWI_Blaster_Heavy_01,0.80,mono,no,heavy blaster shot
+Sci-Fi Weapons & Impacts,SWI_Plasma_Shot_01,0.63,mono,no,plasma shot
+Sci-Fi Weapons & Impacts,SWI_Impact_Blaster_01,0.50,mono,no,blaster bolt impact
+Sci-Fi Weapons & Impacts,SWI_Explosion_Small_01,1.82,mono,no,small explosion
+Starship Engines & Thrusters,SE_Fighter_Cruise_Loop,10.00,stereo,yes,seamless 10 s loop: fighter engine at cruise
+Starship Engines & Thrusters,SE_Fighter_Start,4.50,stereo,no,fighter engine start-up (ends at idle level)
+Starship Engines & Thrusters,SE_Racer_Flyby_Cruise,7.00,stereo,no,racer flyby with real Doppler shift
+Starship Engines & Thrusters,SE_RCS_Burst_01,0.91,mono,no,"RCS thruster burst (mono, for 3D)"
+Starship Engines & Thrusters,SE_Warp_In_01,3.78,stereo,no,warp in

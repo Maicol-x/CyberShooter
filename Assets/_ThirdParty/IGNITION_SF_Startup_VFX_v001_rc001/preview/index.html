@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IGNITION · Sci-Fi Startup VFX</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+  <script src="data.js" defer></script>
+  <script src="player.js" defer></script>
+</head>
+<body data-assets="../assets/">
+  <main>
+    <header><span class="eyebrow">DOMONTYPEF / VFX 001</span><h1>IGNITION<span>✳</span></h1><p>A small spark. A system comes alive.</p></header>
+    <section class="viewer" aria-label="VFX preview">
+      <div id="stage" class="stage dark">
+        <div class="stage-label"><span>STARTUP SEQUENCE</span><span id="palette-name">CYAN</span></div>
+        <canvas id="effect" width="256" height="256" role="button" tabindex="0" aria-label="Replay ignition effect">Your browser needs Canvas 2D to show this preview.</canvas>
+        <p id="status" role="status">Loading preview…</p>
+        <div class="stage-foot"><span>256 × 256 / RGBA</span><span>ONE SHOT / 3.00 S</span></div>
+      </div>
+      <div class="controls">
+        <div class="control-row"><div class="buttons" aria-label="Color"><button type="button" data-color="cyan" aria-pressed="true">Cyan</button><button type="button" data-color="amber" aria-pressed="false">Amber</button><button type="button" data-color="violet" aria-pressed="false">Violet</button></div><div class="buttons" aria-label="Background"><button type="button" data-bg="dark" aria-pressed="true">Dark</button><button type="button" data-bg="checker" aria-pressed="false">Checker</button><button type="button" data-bg="light" aria-pressed="false">Light</button></div></div>
+        <div class="transport"><button id="play" class="primary" type="button" disabled>IGNITE ↗</button><button id="reset" type="button" disabled>Reset</button><label class="repeat"><input id="repeat" type="checkbox"> Repeat</label></div>
+        <label class="timeline" for="frame"><span>FRAME <output id="frame-label">045 / 089</output></span><input id="frame" type="range" min="0" max="89" step="1" value="45" disabled><span id="time">1.50 s</span></label>
+      </div>
+    </section>
+    <footer><p>1 effect · 3 colors · 30 fps</p><p>Transparent PNG sequences + sprite sheets + JSON</p><p class="note">Repeat replays the startup. This effect is not a seamless loop. No audio.</p></footer>
+  </main>
+</body>
+</html>

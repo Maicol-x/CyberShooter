@@ -1,0 +1,101 @@
+==============================================================================
+ENGINE SETUP
+==============================================================================
+
+Three folders, because an engine and a DAW want different files. Pick the one
+that matches what you are doing; you do not need all of them.
+
+  Masters_24bit_Stereo    24-bit/48kHz stereo   editing in a DAW
+  Engine_16bit/Mono_3D    16-bit mono           positioned in world
+  Engine_16bit/Stereo_2D  16-bit stereo         UI and ambience
+
+------------------------------------------------------------------------------
+WHY THE MONO FOLDER EXISTS
+------------------------------------------------------------------------------
+
+A stereo file cannot be spatialised. Unity, Unreal and Godot generate
+panning, distance attenuation and reverb send from where a source sits in the
+world. Hand any of them a stereo asset and that path is bypassed: it plays
+flat across both speakers regardless of where the object is. So every sound a
+game places in space ships mono, and the engine builds the stereo image at
+runtime.
+
+UI and ambience are never positioned, so they stay stereo.
+
+------------------------------------------------------------------------------
+UNITY
+------------------------------------------------------------------------------
+
+  1. Drop Engine_16bit/ into Assets/Audio/
+  2. Per-clip import settings:
+       Load Type ........... Decompress On Load (under ~1 second)
+                             Compressed In Memory (longer beds)
+       Compression Format .. PCM for short, frequent sounds
+                             Vorbis for beds and long risers
+       Force To Mono ....... OFF. Mono_3D is already mono, and
+                             forcing it on Stereo_2D flattens
+                             width that is really there.
+       Sample Rate ......... Preserve Sample Rate
+  3. On the AudioSource, set Spatial Blend to 3D for anything
+     from Mono_3D/. A mono clip at 2D blend wastes the reason it
+     is mono.
+
+------------------------------------------------------------------------------
+UNREAL ENGINE
+------------------------------------------------------------------------------
+
+  1. Drag the folder into the Content Browser. WAV imports
+     directly to USoundWave.
+  2. Attach a Sound Attenuation asset to anything from Mono_3D/.
+     Without one, Unreal plays the sound non-spatialised no
+     matter where the actor is.
+  3. Group sounds with Sound Classes matching the top-level
+     folders for one mix bus per category.
+
+------------------------------------------------------------------------------
+GODOT 4
+------------------------------------------------------------------------------
+
+  1. Copy into res://audio/. WAV imports with no conversion.
+  2. Import dock: Loop off (these are one-shots), Force/8 Bit
+     off, Compress Mode Disabled for short sounds or Vorbis/QOA
+     for beds.
+  3. AudioStreamPlayer3D for Mono_3D/, AudioStreamPlayer for
+     Stereo_2D/.
+
+------------------------------------------------------------------------------
+FMOD STUDIO
+------------------------------------------------------------------------------
+
+  1. Point your project's asset folder at Engine_16bit/.
+  2. FMOD reads the embedded BWF/iXML metadata, so descriptions
+     and categories appear in the asset browser without the CSV.
+  3. Put Mono_3D/ sounds in events with a spatialiser. The 3D
+     panner needs a mono input to place the source properly.
+
+------------------------------------------------------------------------------
+WWISE
+------------------------------------------------------------------------------
+
+  1. Import via the Audio File Importer, or drive a batch import
+     from manifest.csv.
+  2. Set Conversion Settings per folder rather than per file.
+  3. Mono_3D/ on 3D positioning: Emitter. Stereo_2D/ on 2D.
+
+------------------------------------------------------------------------------
+FILENAMES
+------------------------------------------------------------------------------
+
+  CATEGORY_FxNameVnn_CREATOR_SOURCE.wav
+  e.g. IMPT_MetalLargev01_BLDM_PSFX01.wav
+
+ASCII only, no spaces, no characters that are illegal on Windows, nothing
+that collides case-insensitively, and no path longer than 104 characters. The
+library imports cleanly on Windows, macOS and Linux and survives a build
+pipeline that rewrites paths.
+
+The structure follows the Universal Category System convention
+(CatID_FXName_CreatorID_SourceID), but the category codes are this library's
+own and are listed in manifest.csv. They are not certified UCS CatIDs and are
+not presented as such.
+

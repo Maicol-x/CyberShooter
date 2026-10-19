@@ -1,0 +1,188 @@
+All Models info:
+
+Objects:   145
+Vertices:  9,851
+Edges:     27,358
+Triangles: 17,690
+
+BASES:
++Base 1:
+330 - Vertices
+631 - Edges
+592 - Triangles
+
++Base 1A:
+169 - Vertices
+310 - Edges
+144 - Triangles
+
++Base 1A Lock (x6):
+18(108) - Vertices
+33(198) - Edges
+28(168) - Triangles
+
++Base 1A Piston G:
+588   - Vertices
+1,234 - Edges
+1,088 - Triangles
+
++Base 1A Piston M:
+590   - Vertices
+1,234 - Edges
+1,088 - Triangles
+
++Base 1B:
+457 - Vertices
+892 - Edges
+824 - Triangles
+
++Base 1B Dual Turret Adapter:
+24 - Vertices
+48 - Edges
+44 - Triangles
+
++Base 1C:
+186 - Vertices
+332 - Edges
+148 - Triangles
+
++Base 2:
+248 - Vertices
+466 - Edges
+438 - Triangles
+
++Base 2A Lock(x4):
+24 (96)  - Vertices
+45 (180) - Edges
+38 (152) - Triangles
+
++Base 2A:
+433 - Vertices
+855 - Edges
+772 - Triangles
+
++Base 2B:
+240 - Vertices
+442 - Edges
+404 - Triangles
+
+TURRETS:
++MK1:
+105 - Vertices
+220 - Edges
+196 - Triangles
+
++MK1 Grenade Launcher:
+168 - Vertices
+317 - Edges
+151 - Triangles
+
++MK1 Grenade Launcher Grenade:
+104 - Vertices
+204 - Edges
+204 - Triangles
+
++MK1 Heavy Cannon:
+198 - Vertices
+377 - Edges
+356 - Triangles
+
++MK1 Light Cannon:
+204 - Vertices
+397 - Edges
+382 - Triangles
+
++MK1 Machine Gun:
+139 - Vertices
+249 - Edges
+234 - Triangles
+
++MK2:
+179 - Vertices
+372 - Edges
+334 - Triangles
+
++MK2 Heavy Cannon:
+236 - Vertices
+451 - Edges
+424 - Triangles
+
++MK2 Light Cannon:
+360 - Vertices
+704 - Edges
+678 - Triangles
+
++MK2 Machine Gun:
+278 - Vertices
+498 - Edges
+468 - Triangles
+
++MK2 Missile Launcher:
+84  - Vertices
+161 - Edges
+156 - Triangles
+
++Missile MK2:
+161 - Vertices
+316 - Edges
+304 - Triangles
+
++Fake Missile MK2:
+64 - Vertices
+120 - Edges
+114 - Triangles
+
++MK3:
+490 - Vertices
+940 - Edges
+842 - Triangles
+
++MK3 Plasma Cannon:
+278 - Vertices
+525 - Edges
+476 - Triangles
+
++MK3 Sniper Cannon:
+192 - Vertices
+370 - Edges
+348 - Triangles
+
++MK4:
+207 - Vertices
+418 - Edges
+382 - Triangles
+
++MK4 Heavy Cannon:
+428 - Vertices
+818 - Edges
+766 - Triangles
+
++MK4 Light Cannon:
+564   - Vertices
+1,105 - Edges
+1,066 - Triangles
+
++MK4 Machine Gun:
+295 - Vertices
+582 - Edges
+516 - Triangles
+
++MK5:
+386 - Vertices
+763 - Edges
+708 - Triangles
+
++Missile MK5:
+163 - Vertices
+328 - Edges
+310 - Triangles
+
++Fake Missile MK5:
+73  - Vertices
+144 - Edges
+132 - Triangles
+
++MK6:
+1,026 - Vertices
+2,044 - Edges
+1,876 - Triangles

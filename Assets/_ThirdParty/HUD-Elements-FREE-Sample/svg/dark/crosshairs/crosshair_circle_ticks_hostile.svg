@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+<path d="M32 7 L32 17" fill="none" stroke="#020617" stroke-width="4" stroke-opacity="0.85" stroke-linecap="butt" stroke-linejoin="miter"/>
+<path d="M32 47 L32 57" fill="none" stroke="#020617" stroke-width="4" stroke-opacity="0.85" stroke-linecap="butt" stroke-linejoin="miter"/>
+<path d="M7 32 L17 32" fill="none" stroke="#020617" stroke-width="4" stroke-opacity="0.85" stroke-linecap="butt" stroke-linejoin="miter"/>
+<path d="M47 32 L57 32" fill="none" stroke="#020617" stroke-width="4" stroke-opacity="0.85" stroke-linecap="butt" stroke-linejoin="miter"/>
+<circle cx="32" cy="32" r="16" fill="none" stroke="#020617" stroke-width="4" stroke-opacity="0.85"/>
+<circle cx="32" cy="32" r="3" fill="#020617" fill-opacity="0.85"/>
+<path d="M32 8 L32 16" fill="none" stroke="#EF4444" stroke-width="2" stroke-linejoin="miter"/>
+<path d="M32 48 L32 56" fill="none" stroke="#EF4444" stroke-width="2" stroke-linejoin="miter"/>
+<path d="M8 32 L16 32" fill="none" stroke="#EF4444" stroke-width="2" stroke-linejoin="miter"/>
+<path d="M48 32 L56 32" fill="none" stroke="#EF4444" stroke-width="2" stroke-linejoin="miter"/>
+<circle cx="32" cy="32" r="16" fill="none" stroke="#EF4444" stroke-width="2"/>
+<circle cx="32" cy="32" r="2" fill="#EF4444"/>
+</svg>

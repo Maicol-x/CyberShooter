@@ -1,0 +1,45 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://FreeHitVfx/scenes/hit_slash_crimson.tscn" id="1_fx"]
+
+[sub_resource type="Environment" id="env"]
+background_mode = 1
+background_color = Color(0.016, 0.012, 0.03, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.35, 0.3, 0.5, 1)
+ambient_light_energy = 0.35
+tonemap_mode = 3
+glow_enabled = true
+glow_levels/2 = 0.6
+glow_levels/3 = 1.0
+glow_levels/5 = 0.8
+glow_intensity = 0.8
+glow_strength = 1.0
+glow_bloom = 0.03
+glow_blend_mode = 0
+glow_hdr_threshold = 1.5
+
+[sub_resource type="PlaneMesh" id="ground_mesh"]
+size = Vector2(30, 30)
+
+[sub_resource type="StandardMaterial3D" id="ground_mat"]
+albedo_color = Color(0.075, 0.07, 0.1, 1)
+metallic = 0.05
+roughness = 0.58
+
+[node name="FreeHitVfxDemo" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("env")
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+mesh = SubResource("ground_mesh")
+material_override = SubResource("ground_mat")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.966, 0.259, 0, -0.259, 0.966, 0, 1.9, 3.4)
+fov = 50.0
+far = 100.0
+
+[node name="SlashCrimson" parent="." instance=ExtResource("1_fx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)

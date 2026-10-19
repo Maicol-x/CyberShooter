@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-07T11:48:40.580Z",
+  "node": "v24.19.0",
+  "renderer": "@napi-rs/canvas",
+  "rendererVersion": "0.1.100",
+  "source": "effect.mjs",
+  "aiAssistedCode": true,
+  "thirdPartyArt": false,
+  "conceptImageExcluded": true
+}

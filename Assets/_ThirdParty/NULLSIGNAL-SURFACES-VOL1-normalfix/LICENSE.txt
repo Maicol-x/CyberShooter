@@ -1,0 +1,42 @@
+NULLSIGNAL // SURFACES — License / 利用規約
+=============================================
+
+EN
+--
+You may:
+- Use these textures in commercial and non-commercial projects
+  (games, VRChat worlds, films, renders, apps).
+- Modify, recolor, and edit them for your projects.
+- Ship them inside a built product (game builds, world uploads, videos).
+
+You may not:
+- Redistribute, resell, or share the texture files themselves
+  (modified or not) as textures, asset packs, or stock assets.
+- Include the files in a public repository in extractable form.
+- Use these files to train, fine-tune, or evaluate AI/ML models.
+
+Attribution is not required. A link is always appreciated.
+
+JP
+--
+可能:
+- 商用・非商用プロジェクトでの利用(ゲーム/VRChatワールド/映像/レンダリング/アプリ)。
+- プロジェクトのための改変・色変更・編集。
+- ビルド済み成果物への同梱(ゲームビルド、ワールドアップロード、動画)。
+
+禁止:
+- テクスチャファイルそのもの(改変の有無を問わず)の再配布・再販売・共有
+  (テクスチャ素材・アセットパック・ストック素材として)。
+- 抽出可能な形での公開リポジトリへの同梱。
+- 本ファイルを AI/ML モデルの学習・微調整・評価に使用すること。
+
+クレジット表記は不要です(リンクは歓迎)。
+
+---
+Production note / 制作について:
+Procedurally generated (custom code) with AI-assisted development,
+then human-curated. Disclosed honestly on every store page.
+本パックは自作の手続き的生成コード(AI支援で開発)により生成し、人間が選別・調整しています。
+各ストアページで正直に開示しています。
+
+(c) NULLSIGNAL — nkyo-p.booth.pm / nkyo-p.itch.io / suto3.gumroad.com

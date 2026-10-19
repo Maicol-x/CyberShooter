@@ -1,0 +1,83 @@
+//                                                                                                            
+//  ███████ ████      ███████   █████████  █████████ ████  ███ █████████ ████████  █████████  █████ ████        
+//  ███████ ████      ███████   ████  ███  ████  ███  ███  ███ █████████ ████████ █████ ████  █████ ████        
+//  ████    ████      ███ ███   ████  ████ ████  ███  ███ ███     ███    ███      █████ █████ █████ ████        
+//  ███████ ████     ████ ███   ████  ███  ████  ███   ██ ███     ███    ███████  █████ █████ ██████████        
+//  ███████ ████     ████ ████  █████████  █████████   █████      ███    ███████  █████       ██████████        
+//  ████    ████     ███   ███  ████       ████         ████      ███    ███      █████ █████ █████ ████        
+//  ████    ████     █████████  ████       ████         ████      ███    ███      █████ █████ █████ ████        
+//  ████    ███████  ███   ███  ████       ████         ████      ███    ████████  ████ ████  █████ ████        
+//  ████    ███████ ████   ████ ████       ████         ████      ███    ████████   ███████   █████ ████        
+////                                     SNIPER SCRIPT                                  ////
+//This is just a little tester script to demonstrate lit muzzleflash, but feel free to use this
+//script for your enemies if you want.
+
+image ScaredySniper 0 12
+
+state IDLE NONE 0
+frame 0 0.125 0 0 0 NONE
+frame 0 0.125 0 0 0 NONE
+frame 0 0 0 0 0 JUMPIFEQUALS alerted 1 DECIDING
+
+state DECIDING NONE 0 
+frame 17 0.125 0 0 0 NONE
+frame 17 0 0 0 0 SETVAR dist PLAYERDISTANCE
+frame 17 0 0 0 0 JUMPIFLESS dist 200 FLEE
+frame 17 0 0 0 0 SETVAR cansee PLAYERVISIBLE
+frame 17 0 0 0 0 JUMPIFEQUALS cansee 1 SHOOT
+frame 17 1 0 0 0 NONE
+
+state SEE SHOOT 0
+frame 13 0.125 0 0 0 NONE
+frame 13 0 0 0 0 SETVAR alerted 1
+frame 13 1 0 0 0 NONE
+
+state SHOOT SEE 0 
+frame 5 0.25 0 0 0 NONE
+frame 5 0.25 0 0 0 READY
+frame 6 0 0 0 0 ATTACK
+////////////////////////////////////////////////////////////////
+//EVERYTHING IN BETWEEN THE LINES OF SLASHES DOES MUZZLE FLASH
+frame 6 0 0 0 0 CHECKPOS ex ey ez
+frame 6 0 0 0 0 SETVAR map.MuzzleFlashX $ex
+frame 6 0 0 0 0 SETVAR map.MuzzleFlashY $ey
+frame 6 0 0 0 0 SETVAR map.MuzzleFlashZ $ez
+frame 6 0 0 0 0 SETVAR map.shotfired 1
+/////////////////////////////////////////////////////////////////
+frame 4 0.01 0 0 0 SETVAR dist PLAYERDISTANCE
+frame 4 0 0.01 0 0 JUMPIFLESS dist 150 FLEE
+
+state FLEE NONE 0
+frame 1 0.1 0 0 0 NONE
+frame 2 0.1 0 0 0 NONE
+frame 3 0.1 0 0 0 NONE
+frame 4 0.1 0 0 0 NONE
+frame 4 0 0 0 0 SETVAR cansee PLAYERVISIBLE
+frame 4 0 0 0 0 JUMPIFEQUALS cansee 1 FLEEINGSHOOT
+frame 4 0 0 0 0 JUMPIFEQUALS cansee 0 IDLE
+frame 4 0 0 0 0 SETVAR dist PLAYERDISTANCE
+frame 4 0 0 0 0 JUMPIFGREATER dist 200 SHOOT
+
+state FLEEINGSHOOT NONE 0
+frame 5 0.1 0 0 0 NONE
+frame 6 0.1 0 0 0 READY
+frame 6 0 0 0 0 ATTACK
+frame 5 0.1 0 0 0 NONE
+frame 6 0.1 0 0 0 NONE
+frame 4 0 0 0 0 SETVAR dist PLAYERDISTANCE
+frame 4 0 0 0 0 JUMPIFGREATER dist 200 IDLE
+frame 4 0 0 0 0 SETVAR cansee PLAYERVISIBLE
+frame 4 0 0 0 0 JUMPIFEQUALS cansee 0 IDLE
+
+state HURT DECIDING 0
+frame 7 0.125 0 0 0 NONE
+frame 8 0.125 0 0 0 NONE
+
+state DEATH DEAD 0
+frame 9 0.166 0 0 0 NONE
+frame 10 0.166 0 0 0 NONE
+frame 11 0.166 0 0 0 NONE
+
+state DEAD NONE 0
+frame 12 0.125 0 0 0 NONE
+frame 12 0.125 0 0 0 NONE

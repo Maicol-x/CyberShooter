@@ -1,0 +1,4 @@
+tile ColumnBig
+circle 0 0 0 64 32 12
+tile ColumnSmall
+circle 0 0 0 64 16 12

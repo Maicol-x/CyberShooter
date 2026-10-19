@@ -1,0 +1,53 @@
+{
+  "_readme": "Margins in px at 1x (multiply by 2 or 3 for @2x/@3x PNGs). left/top/right/bottom = the fixed borders; the centre stretches. top/bottom 0 means a 3-slice that only stretches horizontally; left/right 0 only vertically. Every file listed under \"files\" shares the margins.",
+  "elements": {
+    "bar_health_lg": {
+      "size": [
+        192,
+        24
+      ],
+      "left": 8,
+      "top": 0,
+      "right": 8,
+      "bottom": 0,
+      "note": "3-slice, horizontal (under, frame and fill share the margins). Fill: drive it with a TextureProgressBar.",
+      "files": [
+        "bars/bar_health_lg_under.svg",
+        "bars/bar_health_lg_frame.svg",
+        "bars/bar_health_lg_fill.svg"
+      ]
+    },
+    "slot_lg": {
+      "size": [
+        64,
+        64
+      ],
+      "left": 8,
+      "top": 8,
+      "right": 8,
+      "bottom": 8,
+      "note": "Same margins for every state.",
+      "files": [
+        "slots/slot_lg_normal.svg",
+        "slots/slot_lg_hover.svg",
+        "slots/slot_lg_pressed.svg",
+        "slots/slot_lg_disabled.svg",
+        "slots/slot_lg_focused.svg",
+        "slots/slot_lg_selected.svg"
+      ]
+    },
+    "hud_panel": {
+      "size": [
+        128,
+        96
+      ],
+      "left": 16,
+      "top": 16,
+      "right": 16,
+      "bottom": 16,
+      "files": [
+        "frames/hud_panel.svg"
+      ]
+    }
+  }
+}

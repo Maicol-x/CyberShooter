@@ -1,0 +1,26 @@
+Free Sci-Fi SFX Sampler - License
+Copyright (c) 2026 Blackcat Forge. All rights reserved except as granted below.
+
+This sampler is a free download. The sounds in it are covered by the same terms as the
+full packs they come from (Deep Space Ambience & Drones, Droid Voices, Sci-Fi Weapons &
+Impacts, Starship Engines & Thrusters).
+
+YOU MAY
+  - Use these sounds in any number of your own games, apps, prototypes, game
+    jams, videos and streams, free or commercial, worldwide, with no time limit.
+  - Edit, layer and otherwise modify them for those projects.
+  - Ship them inside your compiled/packaged project.
+  - Credit is appreciated ("Sound effects by Blackcat Forge") but not required.
+
+YOU MAY NOT
+  - Resell, sublicense, share or redistribute the files (original or modified)
+    on their own or as part of another asset pack, library, template or
+    marketplace product, whether free or paid. Point people to the download
+    page instead: https://bllackcat1.itch.io
+  - Register the files with content-ID / sound-recognition systems.
+  - Use the files to train, fine-tune or evaluate machine-learning / AI models,
+    or include them in datasets.
+  - Claim you created the original files.
+
+NO WARRANTY: provided "as is", without warranty of any kind. Blackcat Forge is
+not liable for any damages arising from use of these files.

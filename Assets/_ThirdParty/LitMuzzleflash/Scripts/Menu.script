@@ -1,0 +1,203 @@
+additionalSettings = 1
+
+settingsX = 380
+settingsValuesX = 880
+slotX = 670
+
+mcolor 255 255 255
+
+//MAIN
+mbutton "CONTINUE" 50 370 "return" -1
+mbutton "NEW GAME" 50 450 "new" -1
+mbutton "SAVE GAME" 50 490 "save" -1
+mbutton "LOAD GAME" 50 530 "load" -1
+mbutton "SETTINGS" 50 570 "settings" -1
+mbutton "EXIT GAME" 50 610 "exit" -1
+
+//SAVE
+mtext "SAVE GAME" 535 30 1
+mbutton "QUICK SAVE" $slotX 180 "savequick" 1
+mbutton "SLOT 1" $slotX 250 "saveslot1" 1
+mbutton "SLOT 2" $slotX 290 "saveslot2" 1
+mbutton "SLOT 3" $slotX 330 "saveslot3" 1
+mbutton "SLOT 4" $slotX 370 "saveslot4" 1
+mbutton "SLOT 5" $slotX 410 "saveslot5" 1
+mbutton "SLOT 6" $slotX 450 "saveslot6" 1
+mbutton "SLOT 7" $slotX 490 "saveslot7" 1
+mbutton "SLOT 8" $slotX 530 "saveslot8" 1
+
+//LOAD
+mtext "LOAD GAME" 535 30 2
+mbutton "QUICK SAVE" $slotX 180 "loadquick" 2
+mbutton "SLOT 1" $slotX 250 "loadslot1" 2
+mbutton "SLOT 2" $slotX 290 "loadslot2" 2
+mbutton "SLOT 3" $slotX 330 "loadslot3" 2
+mbutton "SLOT 4" $slotX 370 "loadslot4" 2
+mbutton "SLOT 5" $slotX 410 "loadslot5" 2
+mbutton "SLOT 6" $slotX 450 "loadslot6" 2
+mbutton "SLOT 7" $slotX 490 "loadslot7" 2
+mbutton "SLOT 8" $slotX 530 "loadslot8" 2
+
+//SETTINGS
+//VIDEO
+mtext "SETTINGS" 570 30 3
+mbutton "VIDEO 2" 320 100 "video2" 3
+mtext "VIDEO" 320 130 3
+mtext "[     ]" 302 130 3
+mbutton "GAME" 470 130 "game" 3
+mbutton "AUDIO" 620 130 "audio" 3
+mbutton "KEYBOARD" 770 100 "input2" 3
+mbutton "INPUT" 770 130 "input" 3
+
+mtext "SCREEN RESOLUTION" $settingsX 210 3
+mrange $settingsValuesX 210 "resolution" 3
+mtext "VSYNC" $settingsX 250 3
+mcheckbox $settingsValuesX 250 "vsync" 3
+mtext "FRAME LIMIT" $settingsX 290 3
+mrange $settingsValuesX 290 "framelimit" 3
+mtext "FULLSCREEN" $settingsX 330 3
+mcheckbox $settingsValuesX 330 "fullscreen" 3
+mtext "PARTICLES ENABLED" $settingsX 370 3
+mcheckbox $settingsValuesX 370 "drawparticles" 3
+mtext "BLOOD ENABLED" $settingsX 410 3
+mcheckbox $settingsValuesX 410 "drawblood" 3
+mtext "PARTICLES NUMBER" $settingsX 450 3
+mrange $settingsValuesX 450 "particlesnumber" 3
+mtext "DECALS NUMBER" $settingsX 490 3
+mrange $settingsValuesX 490 "decalsnumber" 3
+mtext "TEXTURES INTERPOLATION" $settingsX 530 3
+mcheckbox $settingsValuesX 530 "textureinterpolation" 3
+mtext "TO APPLY SOME SETTINGS" 720 640 3
+mtext "A RESTART IS REQUIRED" 720 665 3
+mbutton "APPLY" 350 650 "apply" 3
+
+//VIDEO 2
+mtext "SETTINGS" 570 30 32
+mtext "VIDEO 2" 320 100 32
+mtext "[       ]" 303 100 32
+mbutton "VIDEO" 320 130 "video" 32
+mbutton "GAME" 470 130 "game" 32
+mbutton "AUDIO" 620 130 "audio" 32
+mbutton "KEYBOARD" 770 100 "input2" 32
+mbutton "INPUT" 770 130 "input" 32
+
+mtext "LIGHTING QUALITY" $settingsX 210 32
+mrange $settingsValuesX 210 "lightingquality" 32
+mtext "GEOMETRY SUBDIVISION" $settingsX 250 32
+mrange $settingsValuesX 250 "subdivision" 32
+mtext "PER PIXEL LIGHTING" $settingsX 290 32
+mcheckbox $settingsValuesX 290 "perpixellighting" 32
+mtext "POSTEFFECTS" $settingsX 330 32
+mcheckbox $settingsValuesX 330 "posteffects" 32
+mtext "BLOOM" $settingsX 370 32
+mcheckbox $settingsValuesX 370 "bloom" 32
+mtext "BLOOM INTENSITY" $settingsX 410 32
+mrange $settingsValuesX 410 "bloomintensity" 32
+mtext "FXAA" $settingsX 450 32
+mcheckbox $settingsValuesX 450 "fxaa" 32
+if $additionalSettings == 1 {
+	mtext "MODELS INTERPOLATION" $settingsX 490 32
+	mcheckbox $settingsValuesX 490 "modelsinterpolation" 32
+	mtext "DRAW OUTLINES" $settingsX 530 32
+	mcheckbox $settingsValuesX 530 "drawoutlines" 32
+}
+
+mtext "TO APPLY SOME SETTINGS" 720 640 3
+mtext "A RESTART IS REQUIRED" 720 665 3
+mbutton "APPLY" 350 650 "apply" 32
+
+//GAME
+mtext "SETTINGS" 570 30 4
+mbutton "VIDEO 2" 320 100 "video2" 4
+mbutton "VIDEO" 320 130 "video" 4
+mtext "GAME" 470 130 4
+mtext "[    ]" 452 133 4
+mbutton "AUDIO" 620 130 "audio" 4
+mbutton "KEYBOARD" 770 100 "input2" 4
+mbutton "INPUT" 770 130 "input" 4
+
+mtext "WEAPON RECOIL" $settingsX 210 4
+mcheckbox $settingsValuesX 210 "weaponrecoil" 4
+mtext "MOVE BOBBING" $settingsX 250 4
+mcheckbox $settingsValuesX 250 "movebob" 4
+mtext "WEAPON BOBBING" $settingsX 290 4
+mcheckbox $settingsValuesX 290 "weaponbob" 4
+mtext "CAMERA TILT" $settingsX 330 4
+mcheckbox $settingsValuesX 330 "tilt" 4
+mtext "WEAPON SWAYING" $settingsX 370 4
+mcheckbox $settingsValuesX 370 "weaponinertia" 4
+mtext "SWAYING SCALE" $settingsX 410 4
+mrange $settingsValuesX 410 "weaponinertiascale" 4
+mtext "FOV" $settingsX 450 4
+mrange $settingsValuesX 450 "fov" 4
+mbutton "APPLY" 350 650 "apply" 4
+
+//AUDIO
+mtext "SETTINGS" 570 30 5
+mbutton "VIDEO 2" 320 100 "video2" 5
+mbutton "VIDEO" 320 130 "video" 5
+mbutton "GAME" 470 130 "game" 5
+mtext "AUDIO" 620 130 5
+mtext "[     ]" 603 130 5
+mbutton "KEYBOARD" 770 100 "input2" 5
+mbutton "INPUT" 770 130 "input" 5
+
+mtext "SOUND VOLUME" $settingsX 210 5
+mrange $settingsValuesX 210 "sound" 5
+mtext "MUSIC VOLUME" $settingsX 250 5
+mrange $settingsValuesX 250 "music" 5
+mtext "FOOTSTEPS SOUND" $settingsX 290 5
+mcheckbox $settingsValuesX 290 "stepssound" 5
+mbutton "APPLY" 350 650 "apply" 5
+
+//INPUT
+mtext "SETTINGS" 570 30 6
+mbutton "VIDEO 2" 320 100 "video2" 6
+mbutton "VIDEO" 320 130 "video" 6
+mbutton "GAME" 470 130 "game" 6
+mbutton "AUDIO" 620 130 "audio" 6
+mbutton "KEYBOARD" 770 100 "input2" 6
+mtext "INPUT" 770 130 6
+mtext "[          ]" 753 133 6
+
+mtext "MOUSE SENS. X" $settingsX 210 6
+mrange $settingsValuesX 210 "mousex" 6
+mtext "MOUSE SENS. Y" $settingsX 250 6
+mrange $settingsValuesX 250 "mousey" 6
+mtext "Invert X" $settingsX 290 6
+mcheckbox $settingsValuesX 290 "invertx" 6
+mtext "Invert Y" $settingsX 330 6
+mcheckbox $settingsValuesX 330 "inverty" 6
+mbutton "APPLY" 350 650 "apply" 6
+
+//INPUT 2
+mtext "SETTINGS" 570 30 62
+mbutton "VIDEO 2" 320 100 "video2" 62
+mbutton "VIDEO" 320 130 "video" 62
+mbutton "GAME" 470 130 "game" 62
+mbutton "AUDIO" 620 130 "audio" 62
+mtext "KEYBOARD" 770 100 62
+mtext "[          ]" 755 100 62
+mbutton "INPUT" 770 130 "input" 62
+mbutton "APPLY" 350 650 "apply" 62
+
+mtext "FORWARD" $settingsX 210 62
+minput "forward" $settingsValuesX 210 "forward" 62
+mtext "BACKWARD" $settingsX 250 62
+minput "backward" $settingsValuesX 250 "backward" 62
+mtext "STRAFE LEFT" $settingsX 290 62
+minput "left" $settingsValuesX 290 "left" 62
+mtext "STRAFE RIGHT" $settingsX 330 62
+minput "right" $settingsValuesX 330 "right" 62
+mtext "USE" $settingsX 370 62
+minput "use" $settingsValuesX 370 "use" 62
+mtext "JUMP" $settingsX 410 62
+minput "jump" $settingsValuesX 410 "jump" 62
+mtext "CROUCH" $settingsX 450 62
+minput "duck" $settingsValuesX 450 "duck" 62
+mtext "RELOAD" $settingsX 490 62
+minput "reload" $settingsValuesX 490 "reload" 62
+mtext "MAP" $settingsX 530 62
+minput "map" $settingsValuesX 530 "map" 62
+mtext "FLASHLIGHT" $settingsX 570 62
+minput "flashlight" $settingsValuesX 570 "flashlight" 62
