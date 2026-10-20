@@ -798,7 +798,9 @@ namespace CyberShooter.EditorTools
                 instance.transform.rotation = Quaternion.Euler(0f, spec.Yaw, 0f);
                 instance.transform.localScale = Vector3.one * spec.Scale;
 
-                // Sin fisica: son decorativos.
+                // El FBX no trae colliders: se limpian por si acaso y se anade
+                // un BoxCollider ajustado DESPUES de colocar todos los props
+                // (asi el chequeo antisolape de arriba no se ve afectado).
                 var colliders = instance.GetComponentsInChildren<Collider>(true);
                 for (int c = 0; c < colliders.Length; c++) Object.DestroyImmediate(colliders[c]);
 
@@ -812,7 +814,59 @@ namespace CyberShooter.EditorTools
                 placed++;
             }
 
-            Log("Props colocados: " + placed + "  omitidos: " + skipped);
+            // --- Props solidos: el jugador no los atraviesa y sirven de cobertura ---
+            int withCollider = 0;
+            foreach (Transform child in group.transform)
+            {
+                if (child.GetComponent<Collider>() != null) continue;
+
+                Bounds lb = LocalBoundsOf(child);
+                if (lb.size.sqrMagnitude < 0.0001f) continue;
+
+                var box = child.gameObject.AddComponent<BoxCollider>();
+                box.center = lb.center;
+                box.size = lb.size;
+                withCollider++;
+            }
+
+            Log("Props colocados: " + placed + "  omitidos: " + skipped +
+                "  con BoxCollider: " + withCollider);
+        }
+
+        /// <summary>Bounds del prop en el espacio LOCAL de su raiz.</summary>
+        private static Bounds LocalBoundsOf(Transform root)
+        {
+            var filters = root.GetComponentsInChildren<MeshFilter>();
+            Matrix4x4 toLocal = root.worldToLocalMatrix;
+            bool first = true;
+            Bounds b = new Bounds(Vector3.zero, Vector3.zero);
+
+            for (int i = 0; i < filters.Length; i++)
+            {
+                var mf = filters[i];
+                if (mf.sharedMesh == null) continue;
+
+                Bounds mb = mf.sharedMesh.bounds;
+                Matrix4x4 m = toLocal * mf.transform.localToWorldMatrix;
+
+                Vector3 c = m.MultiplyPoint3x4(mb.center);
+                Vector3 e = mb.extents;
+
+                Vector3 ax = m.MultiplyVector(new Vector3(e.x, 0f, 0f));
+                Vector3 ay = m.MultiplyVector(new Vector3(0f, e.y, 0f));
+                Vector3 az = m.MultiplyVector(new Vector3(0f, 0f, e.z));
+
+                Vector3 size = new Vector3(
+                    Mathf.Abs(ax.x) + Mathf.Abs(ay.x) + Mathf.Abs(az.x),
+                    Mathf.Abs(ax.y) + Mathf.Abs(ay.y) + Mathf.Abs(az.y),
+                    Mathf.Abs(ax.z) + Mathf.Abs(ay.z) + Mathf.Abs(az.z));
+
+                var nb = new Bounds(c, size);
+                if (first) { b = nb; first = false; }
+                else b.Encapsulate(nb);
+            }
+
+            return b;
         }
 
         private static Bounds LocalBounds(GameObject prefab)
